@@ -8,49 +8,48 @@ class MyDB_PageBase {
 
 private: 
 	
-	string pageID;
+	string pageID;			// id of the page
 
-	//Size of a page
-	size_t pageSize;
+	long pageIndex;			// index of the page in its table
 
-	//Address of a page
-	void * pageAddr;
+	size_t pageSize;		// size of a page
+
+	void * pageAddr;		// memory address of a page in buffer's data pool
 	
-	//Flag refers to if a page is pinned.
-	bool pinned;
+	bool pinned;			// true if a page is pinned
 
-	
-	bool dirty;
+	bool dirty;				// true if the data has been modified, and need to be written back before eviction
 
-	MyDB_TablePtr tablePtr;
-
-
-	
+	MyDB_TablePtr tablePtr;	// pointer to the table which contains this page
 	
 
 public:
 	
-	string getPageID();
+	// getters and setters
+	string getPageID();		
 	size_t getPageSize();
 	void * getPageAddr();
 
 	bool getPinned();
 	void setPinned(bool pinned);
-
-	void *getBytes();
-	void wroteBytes();
-
-	void keep();
-	void release();
 	
 	MyDP_TablePtr getTable();
 	void setTable(MyDB_TablePtr);
 
+	void wroteBytes();
+
+	// write or load data to/from disk
+	void writeData();
+	void loadData();
+
+	void keep();
+	void release();
+
 
 	//Constructor for a page
-	MyDB_Page (size_t pageSize, void * pageAddr);
+	MyDB_Page (size_t pageSize, void * pageAddr, long i);
 	
-//Deconstructor for a page
+	//Deconstructor for a page
 	~MyDB_Page ();
 	
 }
