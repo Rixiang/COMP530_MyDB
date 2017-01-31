@@ -4,6 +4,8 @@
 
 #include "MyDB_PageHandle.h"
 #include "MyDB_Table.h"
+#include <unordered_map>
+#include <list>
 
 using namespace std;
 
@@ -52,8 +54,16 @@ public:
 private:
 
 	// YOUR STUFF HERE
+	size_t pageSize;
+	size_t numPages;
+	string tempFIile;
 
-};
+	unordered_map<string, MyDB_PageHandle> pageTable;
+	list<LRUNode> lruTable;
+
+
+
+}
 
 #endif
 
