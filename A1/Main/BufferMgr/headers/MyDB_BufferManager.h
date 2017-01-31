@@ -5,7 +5,6 @@
 #include "MyDB_PageHandle.h"
 #include "MyDB_Table.h"
 #include <unordered_map>
-#include <list>
 
 using namespace std;
 
@@ -59,9 +58,8 @@ private:
 	string tempFIile;
 
 	unordered_map<string, MyDB_PageHandle> pageTable;
-	list<LRUNode> lruTable;
-
-
+	MyDB_LRU lru;
+	//list<LRUNode> lruTable;
 
 }
 
