@@ -36,6 +36,11 @@ public:
 
 	// FEEL FREE TO ADD ADDITIONAL PUBLIC METHODS
 
+	//Get LRU number of the page.
+	int getLRU();
+	
+	//Set LRU number of the page.
+	void setLRU();
 private:
 
 	// YOUR CODE HERE

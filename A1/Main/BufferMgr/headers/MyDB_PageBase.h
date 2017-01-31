@@ -25,9 +25,11 @@ private:
 	
 	bool pinned;			// true if a page is pinned
 
-	bool dirty;				// true if the data has been modified, and need to be written back before eviction
+	bool dirty;			// true if the data has been modified, and need to be written back before eviction
 
 	MyDB_TablePtr tablePtr;	// pointer to the table which contains this page
+	
+	int pageLRU;		// LRU number of this page
 	
 public:
 	
@@ -38,6 +40,9 @@ public:
 
 	bool getPinned();
 	void setPinned(bool pinned);
+
+	int getLRU();
+	void setLRU(int lru);
 	
 	MyDP_TablePtr getTable();
 	void setTable(MyDB_TablePtr);

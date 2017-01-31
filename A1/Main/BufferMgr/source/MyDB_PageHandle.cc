@@ -15,5 +15,13 @@ void MyDB_PageHandleBase :: wroteBytes () {
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
 }
 
+int MyDB_PageHandleBase :: getLRU () {
+	return this->page->getLRU();
+}
+
+void MyDB_PageHandleBase :: setLRU (int lru) {
+	this->page->setLRU(lru);
+}
+
 #endif
 

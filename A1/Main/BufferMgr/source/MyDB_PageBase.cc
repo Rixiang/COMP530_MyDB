@@ -43,6 +43,14 @@ void MyDB_PageBase :: setPinned(bool pinned){
 	this->pinned = pinned;
 }
 
+int MyDB_PageBase :: getLRU(){
+	return this->pageLRU;
+}
+
+void MyDB_PageBase :: getLRU(int lru){
+	this->pageLRU = lru;
+}
+
 void MyDB_PageBase :: writeData(){
 	const char *fileAddress = (this->whichTable)->getStorageLoc().c_str();
 	int fd = open (fileAddress, O_CREAT | O_RDWR | O_SYNC, 0666);
@@ -93,6 +101,5 @@ void MyDB_PageBase :: loadData(){
 
 void MyDB_PageBase :: keep(){}
 void MyDB_Page :: release(){}
-
 
 #endif
