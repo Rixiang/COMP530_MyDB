@@ -55,6 +55,12 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 
 MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	return nullptr;		
+	
+
+	// if new page
+	lru.addToTail(pageId);
+	// else
+	lru.moveToTail(pageHandle.getLRU());
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr, long) {
@@ -66,6 +72,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 }
 
 void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
+	//
+	lru.addToTail(pageID);
 }
 
 MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string tempF) {
