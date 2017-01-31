@@ -3,6 +3,13 @@
 #define PAGE_H
 
 #include <memory>
+#include <string>
+#include "MyDB_Table.h"
+
+using namespace std;
+
+class MyDB_PageBase;
+typedef shared_ptr <MyDB_PageBase> MyDB_PagePtr;
 
 class MyDB_PageBase {
 
@@ -22,7 +29,6 @@ private:
 
 	MyDB_TablePtr tablePtr;	// pointer to the table which contains this page
 	
-
 public:
 	
 	// getters and setters

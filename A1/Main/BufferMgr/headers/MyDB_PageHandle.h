@@ -3,6 +3,7 @@
 #define PAGE_HANDLE_H
 
 #include <memory>
+#include "MyDB_PageBase.h"
 
 // page handles are basically smart pointers
 using namespace std;
@@ -38,6 +39,7 @@ public:
 private:
 
 	// YOUR CODE HERE
+	MyDB_PagePtr page;
 };
 
 #endif
