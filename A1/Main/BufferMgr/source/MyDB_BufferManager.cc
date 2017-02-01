@@ -13,6 +13,22 @@
 
 using namespace std;
 
+MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string tempF) {
+	// initialize private class members
+	this->pageSize = pSize;
+	this->numPages = numP;
+	this->tempFile = tempF;
+	this->incLruNum = 0;
+
+
+	this->dataPool = new char*[numP];
+	for (int i = 0; i < numP; i++){
+		this->dataPool[i] = new char[pSize];
+		this->emptySlotQueue.push(this->dataPool[i]);
+	}
+
+}
+
 MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i) {
 	MyDB_PageHandle pageHandle = nullptr;
 	if (whichTable == nullptr){
@@ -27,18 +43,19 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
         cout << pageId << " not found in the pageHandle table\n";
 
         void * address;
-        cout << "he" << endl;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
         	string evictedPageId = evictFromLruHead();
-        	cout << "here" << endl;
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
 		        address = search->second->getBytes();
+		        cout << "page to be evicted is with address: " << address << endl;
 		        // evict this page from buffer
 		        search->second->destroyPageHandle();
+		        cout << "sad" << endl;
 		        if (search->second->getPage() != nullptr){
 		        	search->second->getPage()->destroyPage();
 		        }
+		        cout << "sadsad" << endl;
 		        pageTable.erase(evictedPageId);
 		    }else {
 		        cout << "Page to be evicted not found\n";
@@ -48,9 +65,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 			address = this->emptySlotQueue.front();
 			this->emptySlotQueue.pop();
         }
-		
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, address, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
@@ -61,10 +77,9 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), pageId, this->pageSize, nullptr, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i);
 
 		// update LRU
-
 		moveToLruTail(pageHandle->getLRU());
     }
 	
@@ -91,7 +106,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	string pageId = whichTable -> getName().c_str() + to_string(i);
 	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
-        cout << pageId << " not found\n";
+        cout << pageId << " not found in the pageHandle table\n";
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
@@ -116,7 +131,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
         }
 		
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, address, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
@@ -125,7 +140,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), pageId, this->pageSize, nullptr, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i);
 
         // No LRU update.
     }
@@ -141,23 +156,6 @@ void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
     //Unpin the page and put in lruTable.
     unpinMe->unpinPage();
     addToLruTail(unpinMe->getPageId());
-}
-
-MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string tempF) {
-	// initialize private class members
-	this->pageSize = pSize;
-	this->numPages = numP;
-	this->tempFile = tempF;
-	this->incLruNum = 0;
-
-
-	this->dataPool = new char*[numP];
-	for (int i = 0; i < numP; i++){
-		this->dataPool[i] = new char[pSize];
-		this->emptySlotQueue.push(this->dataPool[i]);
-	}
-
-
 }
 
 MyDB_BufferManager :: ~MyDB_BufferManager () {

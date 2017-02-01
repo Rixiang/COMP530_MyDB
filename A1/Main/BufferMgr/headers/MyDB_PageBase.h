@@ -65,7 +65,7 @@ public:
 
 
 	//Constructor for a page
-	MyDB_PageBase (string id, size_t pageSize, void * pageAddr, long i);
+	MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i);
 	
 	//Deconstructor for a page
 	~MyDB_PageBase ();

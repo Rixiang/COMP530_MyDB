@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <iostream>
 
-MyDB_PageBase :: MyDB_PageBase (string id, size_t pageSize, void * pageAddr, long i) {
+MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i) {
 	this->pageId = id;
 	this->pageSize = pageSize;
 	this->pageAddr = pageAddr;
@@ -16,6 +16,8 @@ MyDB_PageBase :: MyDB_PageBase (string id, size_t pageSize, void * pageAddr, lon
 	this->dirty = false;
 	this->pinned = false;
 	this->countHandle = 1;
+	this->tablePtr = tablePtr;
+	this->pageLRU = 1;
 	this->loadData();
 }
 
@@ -54,9 +56,11 @@ void MyDB_PageBase :: setLRU(int lru){
 int MyDB_PageBase :: getCountHandle() {
     return this->countHandle;
 } 
+
 void MyDB_PageBase :: increaseCountHandle(){
     this->countHandle++;
 }
+
 void MyDB_PageBase :: decreaseCountHandle(){
     this->countHandle--;
 }
@@ -85,8 +89,11 @@ void MyDB_PageBase :: writeData(){
 }
 
 void MyDB_PageBase :: loadData(){
-	const char *fileAddress = (this->tablePtr)->getStorageLoc().c_str();
+
+	const char *fileAddress = ((this->tablePtr)->getStorageLoc()).c_str();
+
 	int fd = open (fileAddress, O_CREAT | O_RDWR | O_FSYNC, 0666);
+
 	if (fd == -1){
 		cout << "Error happens in opening file" << endl;
 	}else{
@@ -110,15 +117,17 @@ void MyDB_PageBase :: loadData(){
 
 void MyDB_PageBase :: destroyPage(){
 	if (this->dirty == true){
-		writeData();		// write page back to disk when page has been modified
+		writeData();		// write page back to disk if page has been modified
 	}
-	delete this;
+	cout << "before delete" << endl;
+	//delete this;
+	cout << "after delete" << endl;
 }
 
 MyDB_PageBase :: ~MyDB_PageBase () {
-	if (this->countHandle == 0){
+	/*if (this->countHandle == 0){
 		this->destroyPage();
-	}
+	}*/
 }
 
 #endif
