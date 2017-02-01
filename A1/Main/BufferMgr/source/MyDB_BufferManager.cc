@@ -209,9 +209,9 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-cout << pageId << " before strange\n";
+			cout << pageId << " before strange\n";
         	string evictedPageId = evictFromLruHead();
-        	        		        		cout << pageId << " strange\n";
+        	cout << pageId << " strange\n";
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
@@ -231,9 +231,9 @@ cout << pageId << " before strange\n";
 			address = this->emptySlotQueue.front();
 			this->emptySlotQueue.pop();
         }
-		
-    	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail);
+
+		// create a page handle as well as read file from disk
+		pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail);	
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
