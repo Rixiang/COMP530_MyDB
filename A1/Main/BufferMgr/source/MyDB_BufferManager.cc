@@ -34,19 +34,23 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	    	if (addr == MAP_FAILED){
 	    		handle_error("mmap");
     		}
-		// create a page handle to the page requested
-		pageHandle = make_shared<MyDB_PageHandleBase>(fd, fileAddress, i);
 
-		// add the page handle into the page table in the buffer
-		pageTable.insert(make_pair<string, MyDB_PageHandle>(pageId, pageHandle));
-		
-		// add the page id into the LRU table
+    	// create a page handle to the page requested
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, , i);
+
+    	// add the page handle into the page table in the buffer
+    	pageTable.insert(make_pair<string, MyDB_PageHandle>(pageId, pageHandle));
+    	
+    	// add the page id into the LRU table
 		lru.addToTail(pageId);
-	} else {
-    		pageHandle = got -> second;
+
+	}
+	else{
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->page, pageId, this->pageSize, i);
+
 		// update LRU
 		lru.moveToTail(pageHandle.getLRU());
-    	}
+    }
 	
 	return pageHandle;		
 }
@@ -85,3 +89,7 @@ MyDB_BufferManager :: ~MyDB_BufferManager () {
 }
 	
 #endif
+
+
+
+
