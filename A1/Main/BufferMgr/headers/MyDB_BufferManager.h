@@ -75,7 +75,7 @@ private:
 
     unordered_map<string, MyDB_PageHandle> pageTable;
 
-    unordered_map<int, string> lruTable;
+    std::map<int, string> lruTable;
 };
 
 #endif

@@ -19,8 +19,6 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 		return pageHandle;
 	}
 
-	const char * fileAddress = whichTable -> getStorageLoc().c_str();
-
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = whichTable -> getName().c_str() + to_string(i);
@@ -76,9 +74,9 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	return nullptr;		
 	
 	// if new page
-	lru.addToTail(pageId);
+	//lru.addToTail(this->pageId);
 	// else
-	lru.moveToTail(pageHandle->getLRU());
+	//lru.moveToTail(pageHandle->getLRU());
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
@@ -86,8 +84,6 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	if (whichTable == nullptr){
 		return pageHandle;
 	}
-
-	const char * fileAddress = whichTable -> getStorageLoc().c_str();
 
 	// check whether the requested page is in the buffer
 	// if is already in the page
@@ -122,7 +118,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, address, i);
 
     	// add the page handle into the page table in the buffer
-    	pageTable.insert(make_pair<string, MyDB_PageHandle>(pageId, pageHandle));
+    	pageTable.insert({pageId, pageHandle});
     	
         // No LRU update.
 	}
@@ -142,7 +138,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 
 void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
     //Unpin the page and put in lruTable.
-    unpinMe->unpinPage()
+    unpinMe->unpinPage();
     addToLruTail(unpinMe->getPageId());
 }
 
@@ -150,16 +146,14 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 	// initialize private class members
 	this->pageSize = pSize;
 	this->numPages = numP;
-	this->empFile = tempF;
-	this->pageTable = NULL;
-	this->lru = new MyDB_LRU();
+	this->tempFile = tempF;
 	this->incLruNum = 0;
 
 
-	this->bufferPool = new char*[numP];
+	this->dataPool = new char*[numP];
 	for (int i = 0; i < numP; i++){
-		this->bufferPool[i] = new char[pSize];
-		this->emptySlotQueue.push(this->bufferPool[i]);
+		this->dataPool[i] = new char[pSize];
+		this->emptySlotQueue.push(this->dataPool[i]);
 	}
 
 
@@ -168,12 +162,11 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 MyDB_BufferManager :: ~MyDB_BufferManager () {
 
 	for (int i = 0; i < this->numPages; i++){
-		delete this->bufferPool[i];
+		delete this->dataPool[i];
 	}
-	delete bufferPool;
+	delete dataPool;
 
-	delete lru;
-    lruTable.clear()
+    lruTable.clear();
 }
 
 //LRU. When a new page is loaded, add a LRU node to the tail. Return LRU number of that page.
