@@ -1,6 +1,6 @@
 #ifndef LRC_C
 #define LRC_C
-#include "MyDB_LRU"
+#include "MyDB_LRU.h"
 
 int MyDB_LRU :: addToTail(string pageID) {
 	LRU_Node newTail = new LRU_Node(++incrementalLruNum, pageID);

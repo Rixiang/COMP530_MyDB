@@ -4,7 +4,9 @@
 #include <list>
 #include <string>
 
-typedef shareptr <LRU_Node> LRU_NodeBase;
+class LRU_NodeBase;
+
+typedef shared_ptr <LRU_NodeBase> LRU_Node;
 /*
 LRU Node includes a LRU number and a page ID.
 */
@@ -12,8 +14,16 @@ class LRU_NodeBase {
 
 private:
 	int lruNum;
-	string pageID;
-}
+	string pageId;
+
+public:
+	LRU_NodeBase(int lruNum, string pageId){
+		this->lruNum = lruNum;
+		this->pageId = pageId;
+	}
+	
+	~LRU_NodeBase(){}
+};
 
 /*
 Implementation of LRU.
@@ -30,12 +40,12 @@ private:
 
 public:
 	//When a new page is loaded, add a LRU node to the tail. Return LRU number of that page.
-	int addToTail(string pageID);
+	int addToTail(string pageId);
 	
 	//When a page is Moddified,
 	int moveToTail(int LRU_number);
 	
-	//When evict a page, remove the LRU_Node from the head. Return the page ID.
+	//When evict a page, remove the LRU_Node from the head. Return the page Id.
 	string evict();
 	
 	//Constructor of MyDB_LRU.
@@ -43,5 +53,5 @@ public:
 
 	//Destructor of MyDB_LRU.
 	~MyDB_LRU();
-}
+};
 #endif

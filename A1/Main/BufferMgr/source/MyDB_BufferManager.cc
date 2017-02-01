@@ -24,16 +24,17 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	string pageId = whichTable -> getName().c_str() + to_string(i);
 	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
-        cout << pageId << " not found\n";
+        	cout << pageId << " not found\n";
         
 		// get the file descripter
 		int fd = open (fileAddress, O_CREAT | O_RDWR | O_SYNC, 0666);
 		off_t offset = i * pageSize;
 		// map the page with the virtual address space
 		char *addr = mmap(NULL, pageSize, PROT_READ, MAP_PRIVATE, fd, offset);
-	    if (addr == MAP_FAILED){
-	    	handle_error("mmap");
-    	}
+	    	if (addr == MAP_FAILED){
+	    		handle_error("mmap");
+    		}
+
     	// create a page handle to the page requested
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, , i);
 
@@ -57,7 +58,6 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	return nullptr;		
 	
-
 	// if new page
 	lru.addToTail(pageId);
 	// else
@@ -89,3 +89,7 @@ MyDB_BufferManager :: ~MyDB_BufferManager () {
 }
 	
 #endif
+
+
+
+
