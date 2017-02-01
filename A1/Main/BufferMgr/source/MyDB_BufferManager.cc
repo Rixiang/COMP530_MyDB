@@ -291,6 +291,9 @@ int MyDB_BufferManager :: moveToLruTail(int lru){
     
 //When evict a page, remove the from the head. Return the page Id.
 string MyDB_BufferManager :: evictFromLruHead() {
+    if( lruTable.size() == 0 ) {
+        return "";
+    }
     std::map<int,string>::iterator it = lruTable.begin();
     string pageId = it->second;
     this->lruTable.erase(it);
