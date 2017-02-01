@@ -82,14 +82,37 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 	pageSize = pSize;
 	numPages = numP;
 	tempFile = tempF;
+    incLruNum = 0;
 
 }
 
 MyDB_BufferManager :: ~MyDB_BufferManager () {
 }
+
+//LRU. When a new page is loaded, add a LRU node to the tail. Return LRU number of that page.
+int MyDB_BufferManager :: addToLruTail(string pageId){
+    unsigned int lruNumber = ++incLruNum;
+    lruTable.insert ( std::pair<int,string>(lruNumber, pageId) );
+    return lruNumber;
+}
+
+//LRU. When a page is accessed, update LRU number and position in LRU table.
+int MyDB_BufferManager :: moveToLruTail(int lru){
+    unsigned int lruNumber = ++incLruNum;
+    std::map<int,string>::iterator it;
+    it = lruTable.find(lru);
+    if (it != lruTable.end()) {
+        lruTable.insert ( std::pair<int,string>(lruNumber, it->second) );
+        lruTable.erase(it);
+    }
+    return lruNumber;
+}
+    
+//When evict a page, remove the from the head. Return the page Id.
+string MyDB_BufferManager :: evictFromLruHead() {
+    std::map<int,string>::iterator it = lruTable.begin();
+    string pageId = it->second;
+    lruTable.erase(it);
+}
 	
 #endif
-
-
-
-
