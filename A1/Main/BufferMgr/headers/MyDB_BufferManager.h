@@ -4,7 +4,6 @@
 
 #include "MyDB_PageHandle.h"
 #include "MyDB_Table.h"
-#include "MyDB_LRU.h"
 #include <unordered_map>
 
 using namespace std;
