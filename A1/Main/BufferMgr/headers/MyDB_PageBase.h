@@ -44,7 +44,7 @@ public:
 	int getLRU();
 	void setLRU(int lru);
 	
-	MyDP_TablePtr getTable();
+	MyDB_TablePtr getTable();
 	void setTable(MyDB_TablePtr);
 
 	void wroteBytes();
@@ -58,11 +58,11 @@ public:
 
 
 	//Constructor for a page
-	MyDB_Page (size_t pageSize, void * pageAddr, long i);
+	MyDB_PageBase (size_t pageSize, void * pageAddr, long i);
 	
 	//Deconstructor for a page
-	~MyDB_Page ();
+	~MyDB_PageBase ();
 	
-}
+};
 
 #endif

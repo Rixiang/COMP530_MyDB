@@ -40,7 +40,7 @@ public:
 	int getLRU();
 	
 	//Set LRU number of the page.
-	void setLRU();
+	void setLRU(int lru);
 private:
 
 	// YOUR CODE HERE
