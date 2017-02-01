@@ -71,12 +71,60 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPage () {
-	return nullptr;		
+    MyDB_PageHandle pageHandle = nullptr;
+	if (whichTable == nullptr){
+		return pageHandle;
+	}
+
+	// check whether the requested page is in the buffer
+	// if is already in the page
+	string pageId = this -> anonymousTable -> getName().c_str() + to_string(anonymousNextAvail);
+	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
+	if (got == pageTable.end()){
+        cout << pageId << " not found\n";
+
+        void * address;
+        if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
+        	string evictedPageId = evictFromLruHead();
+
+        	auto search = pageTable.find(evictedPageId);
+        	if(search != pageTable.end()) {
+		        address = search->second->getBytes();
+		        // evict this page from buffer
+		        search->second->destroyPageHandle();
+		        if (search->second->getPage() != nullptr){
+		        	search->second->getPage()->destroyPage();
+		        }
+		        pageTable.erase(evictedPageId);
+		    }else {
+		        cout << "Page to be evicted not found\n";
+		    }
+        }else{
+        	// get address for one empty slot to put the data
+			address = this->emptySlotQueue.front();
+			this->emptySlotQueue.pop();
+        }
+		
+    	// create a page handle as well as read file from disk
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, address, i);
+
+    	// add the page handle into the page table in the buffer
+    	pageTable.insert({pageId, pageHandle});
+    	
+    	// add the page id into the LRU table
+		addToLruTail(pageId);
+
+	}
+	else{
+		// create a page handle pointing to the existing pageBase Object
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), pageId, this->pageSize, nullptr, i);
+
+		// update LRU
+
+		moveToLruTail(pageHandle->getLRU());
+    }
 	
-	// if new page
-	//lru.addToTail(this->pageId);
-	// else
-	//lru.moveToTail(pageHandle->getLRU());
+	return pageHandle;
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
@@ -156,6 +204,8 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 		this->emptySlotQueue.push(this->dataPool[i]);
 	}
 
+    this->anonymousTable = new MyDB_Table("Anonymous", "./AnonymousTmp");
+    this->anonymousNextAvail = 0;
 
 }
 
@@ -165,6 +215,7 @@ MyDB_BufferManager :: ~MyDB_BufferManager () {
 		delete this->dataPool[i];
 	}
 	delete dataPool;
+    delete anonymousTable;
 
     lruTable.clear();
 }
