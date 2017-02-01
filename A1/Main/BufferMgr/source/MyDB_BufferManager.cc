@@ -24,12 +24,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	string pageId = whichTable -> getName().c_str() + to_string(i);
 	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
-        cout << pageId << " not found\n";
+        cout << pageId << " not found in the pageHandle table\n";
 
         void * address;
+        cout << "he" << endl;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
         	string evictedPageId = evictFromLruHead();
-
+        	cout << "here" << endl;
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
 		        address = search->second->getBytes();
