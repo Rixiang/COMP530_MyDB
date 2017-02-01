@@ -25,12 +25,11 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
-<<<<<<< HEAD
 	this -> destroyPageHandle();
 }
 
 MyDB_PageHandleBase :: destroyPageHandle(){
-	this->page->countHandle --;
+	//this->page->countHandle --;
 	page->decreaseCountHandle();
 	if (this->page->getCountHandle() == 0){
 		this->page->destroyPage();
