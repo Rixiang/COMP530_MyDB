@@ -34,6 +34,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
         	if(search != pageTable.end()) {
 		        address = search->second->getBytes();
 		        // evict this page from buffer
+		        search->second->page->destroyPage();
 		    }else {
 		        cout << "Page to be evicted not found\n";
 		    }
