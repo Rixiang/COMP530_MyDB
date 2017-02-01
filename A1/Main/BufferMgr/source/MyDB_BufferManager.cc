@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <utility>
+#include <functional>
 #include <iostream>
 
 using namespace std;
@@ -52,7 +54,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, address, i);
 
     	// add the page handle into the page table in the buffer
-    	pageTable.insert(make_pair<string, MyDB_PageHandle>(pageId, pageHandle));
+    	pageTable.insert({pageId, pageHandle});
     	
     	// add the page id into the LRU table
 		addToLruTail(pageId);
@@ -63,7 +65,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
     	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), pageId, this->pageSize, nullptr, i);
 
 		// update LRU
-		lru.moveToTail(pageHandle.getLRU());
+		lru.moveToTail(pageHandle->getLRU());
     }
 	
 	return pageHandle;		
