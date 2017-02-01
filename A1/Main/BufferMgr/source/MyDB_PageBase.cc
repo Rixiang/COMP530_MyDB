@@ -82,7 +82,6 @@ void MyDB_PageBase :: writeData(){
 	if (closeId != 0){
 		cout << "Error happens in closing file" << endl;
 	}
-	
 }
 
 void MyDB_PageBase :: loadData(){
