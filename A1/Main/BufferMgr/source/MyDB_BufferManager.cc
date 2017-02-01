@@ -19,7 +19,8 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 	this->pageSize = pSize;
 	this->numPages = numP;
 	this->tempFile = tempF;
-	this->incLruNum = 0;
+	//this->incLruNum = 0;
+    this->lru = new MyDB_LRU();
 
 
 	this->dataPool = new char*[numP];
@@ -48,7 +49,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-        	string evictedPageId = evictFromLruHead();
+        	string evictedPageId = lru -> evictFromLruHead();
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
 		        address = search->second->getBytes();
@@ -74,7 +75,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
     	pageTable.insert({pageId, pageHandle});
     	
     	// add the page id into the LRU table
-		addToLruTail(pageId);
+		lru -> addToLruTail(pageId);
 
 	}
 	else{
@@ -82,7 +83,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
     	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i);
 
 		// update LRU
-		moveToLruTail(pageHandle->getLRU());
+		lru -> moveToLruTail(pageHandle->getLRU());
     }
 	
 	return pageHandle;		
@@ -100,7 +101,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-        	string evictedPageId = evictFromLruHead();
+        	string evictedPageId = lru -> evictFromLruHead();
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
@@ -127,7 +128,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
     	pageTable.insert({pageId, pageHandle});
     	
     	// add the page id into the LRU table
-		addToLruTail(pageId);
+		lru -> addToLruTail(pageId);
 
 	}
 	else{
@@ -136,7 +137,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 
 		// update LRU
 
-		moveToLruTail(pageHandle->getLRU());
+		lru -> moveToLruTail(pageHandle->getLRU());
     }
 
     anonymousNextAvail += pageHandle -> getPage() -> getPageSize();
@@ -159,7 +160,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-        	string evictedPageId = evictFromLruHead();
+        	string evictedPageId = lru -> evictFromLruHead();
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
@@ -210,7 +211,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
 			cout << pageId << " before strange\n";
-        	string evictedPageId = evictFromLruHead();
+        	string evictedPageId = lru -> evictFromLruHead();
         	cout << pageId << " strange\n";
 
         	auto search = pageTable.find(evictedPageId);
@@ -256,7 +257,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
     //Unpin the page and put in lruTable.
     unpinMe->unpinPage();
-    addToLruTail(unpinMe->getPageId());
+    lru -> addToLruTail(unpinMe->getPageId());
 }
 
 
@@ -267,36 +268,8 @@ MyDB_BufferManager :: ~MyDB_BufferManager () {
 	}
 	delete dataPool;
 
-    lruTable.clear();
+    //lruTable.clear();
+    delete lru;
 }
 
-//LRU. When a new page is loaded, add a LRU node to the tail. Return LRU number of that page.
-int MyDB_BufferManager :: addToLruTail(string pageId){
-    unsigned int lruNumber = ++incLruNum;
-    lruTable.insert ( std::pair<int,string>(lruNumber, pageId) );
-    return lruNumber;
-}
-
-//LRU. When a page is accessed, update LRU number and position in LRU table.
-int MyDB_BufferManager :: moveToLruTail(int lru){
-    unsigned int lruNumber = ++incLruNum;
-    std::map<int,string>::iterator it;
-    it = lruTable.find(lru);
-    if (it != lruTable.end()) {
-        lruTable.insert ( std::pair<int,string>(lruNumber, it->second) );
-        lruTable.erase(it);
-    }
-    return lruNumber;
-}
-    
-//When evict a page, remove the from the head. Return the page Id.
-string MyDB_BufferManager :: evictFromLruHead() {
-    if( lruTable.size() == 0 ) {
-        return "";
-    }
-    std::map<int,string>::iterator it = lruTable.begin();
-    string pageId = it->second;
-    this->lruTable.erase(it);
-    return pageId;
-}
 #endif

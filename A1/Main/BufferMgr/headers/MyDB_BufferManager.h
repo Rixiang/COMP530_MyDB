@@ -4,9 +4,11 @@
 
 #include "MyDB_PageHandle.h"
 #include "MyDB_Table.h"
+#include "MyDB_LRU.h"
 #include <unordered_map>
 #include <map>
 #include <queue>
+#include <string>
 
 using namespace std;
 
@@ -72,11 +74,12 @@ private:
 	char ** dataPool;
 	queue<void *> emptySlotQueue;
 
-	unsigned int incLruNum;
 
     unordered_map<string, MyDB_PageHandle> pageTable;
 
-    std::map<int, string> lruTable;
+    //std::map<int, string> lruTable;
+    MyDB_LRU *lru;
+	//unsigned int incLruNum;
 
     MyDB_TablePtr anonymousTable;
     int anonymousNextAvail;
