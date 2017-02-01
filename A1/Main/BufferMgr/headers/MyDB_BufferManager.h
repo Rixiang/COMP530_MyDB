@@ -56,11 +56,13 @@ private:
 	// YOUR STUFF HERE
 	size_t pageSize;
 	size_t numPages;
-	string tempFIile;
+	string tempFile;
+
+	void ** dataPool;
 
 	unordered_map<string, MyDB_PageHandle> pageTable;
 	MyDB_LRU lru;
-	//list<LRUNode> lruTable;
+
 
 };
 
