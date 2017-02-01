@@ -28,6 +28,15 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
+        	string evictedPageId = evictFromLruHead();
+
+        	auto search = pageTable.find(evictedPageId);
+        	if(search != pageTable.end()) {
+		        address = search->second->getBytes();
+		        // evict this page from buffer
+		    }else {
+		        cout << "Page to be evicted not found\n";
+		    }
 
         }else{
         	// get address for one empty slot to put the data
