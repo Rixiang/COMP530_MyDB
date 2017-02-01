@@ -192,6 +192,6 @@ int MyDB_BufferManager :: moveToLruTail(int lru){
 string MyDB_BufferManager :: evictFromLruHead() {
     std::map<int,string>::iterator it = lruTable.begin();
     string pageId = it->second;
-    lruTable.erase(it);
+    this->lruTable.erase(it);
 }
 #endif
