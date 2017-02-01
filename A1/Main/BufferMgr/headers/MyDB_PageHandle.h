@@ -45,14 +45,18 @@ public:
     //Get page ID of the page.
 	string getPageId();
 
+
  	//Get Page_Base Object
 	MyDB_PagePtr getPage();
 
+
+    //Unpin a page.
+    void unpinPage();
+        
 	// Constructor
 	MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t pageSize, void * pageAddr, long i);
 
 	void destroyPageHandle();
-
 
 
 private:

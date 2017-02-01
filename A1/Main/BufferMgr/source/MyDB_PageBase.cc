@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 MyDB_PageBase :: MyDB_PageBase (string id, size_t pageSize, void * pageAddr, long i) {
-	this->pageID = id;
+	this->pageId = id;
 	this->pageSize = pageSize;
 	this->pageAddr = pageAddr;
 	this->pageIndex = i;
@@ -22,8 +22,8 @@ void MyDB_PageBase :: wroteBytes () {
 	this->dirty = true;
 }
 
-string MyDB_PageBase :: getPageID(){
-	return this->pageID;
+string MyDB_PageBase :: getPageId(){
+	return this->pageId;
 }
 
 size_t MyDB_PageBase :: getPageSize(){
@@ -48,6 +48,16 @@ int MyDB_PageBase :: getLRU(){
 
 void MyDB_PageBase :: getLRU(int lru){
 	this->pageLRU = lru;
+}
+
+int MyDB_PageBase :: getCountHandle() {
+    return this->countHandle;
+} 
+void MyDB_PageBase :: increaseCountHandle(){
+    this->countHandle++;
+}
+void MyDB_PageBase :: decreaseCountHandle(){
+    this->countHandle--;
 }
 
 void MyDB_PageBase :: writeData(){

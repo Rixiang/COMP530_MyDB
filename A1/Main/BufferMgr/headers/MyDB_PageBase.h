@@ -36,7 +36,7 @@ private:
 public:
 	
 	// getters and setters
-	string getPageID();		
+	string getPageId();		
 	size_t getPageSize();
 	void * getPageAddr();
 
@@ -46,6 +46,10 @@ public:
 	int getLRU();
 	void setLRU(int lru);
 	
+    int getCountHandle();
+	void increaseCountHandle();
+	void decreaseCountHandle();
+
 	MyDB_TablePtr getTable();
 	void setTable(MyDB_TablePtr);
 
@@ -54,6 +58,8 @@ public:
 	// write or load data to/from disk
 	void writeData();
 	void loadData();
+
+	
 
 	void destroyPage();
 

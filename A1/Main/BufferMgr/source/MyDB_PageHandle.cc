@@ -15,7 +15,8 @@ void MyDB_PageHandleBase :: wroteBytes () {
 
 MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t pageSize, void * pageAddr, long i){
 	if (page != nullptr){
-		page->countHandle ++;
+		//page->countHandle ++;
+		page->increaseCountHandle();
 		this->page = page;
 	}else{
 		page = new MyDB_PageBase(id, pageSize, pageAddr, i);
@@ -24,12 +25,14 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
+<<<<<<< HEAD
 	this -> destroyPageHandle();
 }
 
 MyDB_PageHandleBase :: destroyPageHandle(){
 	this->page->countHandle --;
-	if (this->page->countHandle == 0){
+	page->decreaseCountHandle();
+	if (this->page->getCountHandle() == 0){
 		this->page->destroyPage();
 	}
 	delete this;
@@ -44,7 +47,7 @@ void MyDB_PageHandleBase :: setLRU (int lru) {
 	this->page->setLRU(lru);
 }
 
-int MyDB_PageHandleBase :: getPageId () {
+string MyDB_PageHandleBase :: getPageId () {
 	return this->page->getPageId();
 }
 
