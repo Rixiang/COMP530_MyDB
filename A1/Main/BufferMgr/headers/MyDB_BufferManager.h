@@ -73,9 +73,9 @@ private:
 
 	static unsigned int incLruNum;
 
-    std::unordered_map<string, MyDB_PageHandle> pageTable;
+    unordered_map<string, MyDB_PageHandle> pageTable;
 
-    std::map<int, string> lruTable;
+    unordered_map<int, string> lruTable;
 };
 
 #endif

@@ -24,10 +24,15 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
+	this -> destroyPageHandle();
+}
+
+MyDB_PageHandleBase :: destroyPageHandle(){
 	this->page->countHandle --;
 	if (this->page->countHandle == 0){
 		this->page->destroyPage();
 	}
+	delete this;
 }
 
 
@@ -41,6 +46,10 @@ void MyDB_PageHandleBase :: setLRU (int lru) {
 
 int MyDB_PageHandleBase :: getPageId () {
 	return this->page->getPageId();
+}
+
+int MyDB_PageHandleBase :: getPage () {
+	return this->page;
 }
 
 void MyDB_PageHandleBase :: unpinPage () {

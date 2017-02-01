@@ -4,10 +4,10 @@
 
 #include "MyDB_BufferManager.h"
 #include <string>
-#include <sys/mman.h> // for mmap()
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
 
 using namespace std;
 
@@ -34,18 +34,21 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
         	if(search != pageTable.end()) {
 		        address = search->second->getBytes();
 		        // evict this page from buffer
-		        search->second->page->destroyPage();
+		        search->second->destroyPageHandle();
+		        if (search->second->getPage() != nullptr){
+		        	search->second->getPage()->destroyPage();
+		        }
+		        pageTable.erase(evictedPageId);
 		    }else {
 		        cout << "Page to be evicted not found\n";
 		    }
-
         }else{
         	// get address for one empty slot to put the data
 			address = this->emptySlotQueue.front();
 			this->emptySlotQueue.pop();
         }
 		
-    	// create a page handle to the page requested
+    	// create a page handle as well as read file from disk
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, address, i);
 
     	// add the page handle into the page table in the buffer
@@ -56,7 +59,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 
 	}
 	else{
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->page, pageId, this->pageSize, nullptr, i);
+		// create a page handle pointing to the existing pageBase Object
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), pageId, this->pageSize, nullptr, i);
 
 		// update LRU
 		lru.moveToTail(pageHandle.getLRU());
@@ -71,10 +75,10 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	// if new page
 	lru.addToTail(pageId);
 	// else
-	lru.moveToTail(pageHandle.getLRU());
+	lru.moveToTail(pageHandle->getLRU());
 }
 
-MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr, long) {
+MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
     MyDB_PageHandle pageHandle = nullptr;
 	if (whichTable == nullptr){
 		return pageHandle;
@@ -107,7 +111,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr, long) {
 
 	}
 	else{
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->page, pageId, this->pageSize, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), pageId, this->pageSize, i);
 
 		// NO need to put pinned page in LRU
     }
@@ -181,5 +185,3 @@ string MyDB_BufferManager :: evictFromLruHead() {
     lruTable.erase(it);
 }
 #endif
-
-
