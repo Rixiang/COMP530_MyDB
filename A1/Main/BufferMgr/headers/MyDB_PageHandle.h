@@ -42,6 +42,9 @@ public:
 	//Set LRU number of the page.
 	void setLRU(int lru);
 
+    //Get page ID of the page.
+	string getPageId();
+
 	// Constructor
 	MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t pageSize, void * pageAddr, long i);
 

@@ -30,6 +30,7 @@ MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
 	}
 }
 
+
 int MyDB_PageHandleBase :: getLRU () {
 	return this->page->getLRU();
 }
@@ -38,5 +39,12 @@ void MyDB_PageHandleBase :: setLRU (int lru) {
 	this->page->setLRU(lru);
 }
 
+int MyDB_PageHandleBase :: getPageId () {
+	return this->page->getPageId();
+}
+
+void MyDB_PageHandleBase :: unpinPage () {
+	this->page->setPinned(false);
+}
 #endif
 
