@@ -6,6 +6,7 @@
 #include "MyDB_Table.h"
 #include "MyDB_LRU.h"
 #include <unordered_map>
+#include <queue>
 
 using namespace std;
 
@@ -58,7 +59,8 @@ private:
 	size_t numPages;
 	string tempFile;
 
-	void ** dataPool;
+	char ** dataPool;
+	queue<void *> emptySlotQueue;
 
 	unordered_map<string, MyDB_PageHandle> pageTable;
 	MyDB_LRU lru;

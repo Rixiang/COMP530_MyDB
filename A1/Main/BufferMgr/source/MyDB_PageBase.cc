@@ -52,7 +52,7 @@ void MyDB_PageBase :: getLRU(int lru){
 
 void MyDB_PageBase :: writeData(){
 	const char *fileAddress = (this->whichTable)->getStorageLoc().c_str();
-	int fd = open (fileAddress, O_CREAT | O_RDWR | O_SYNC, 0666);
+	int fd = open (fileAddress, O_CREAT | O_RDWR | O_FSYNC, 0666);	// 'O_FSYNC' to let writes not buffered by the operating system
 	if (fd == -1){
 		cout << "Error happens in opening file" << endl;
 	}else{
@@ -76,7 +76,7 @@ void MyDB_PageBase :: writeData(){
 
 void MyDB_PageBase :: loadData(){
 	const char *fileAddress = (this->whichTable)->getStorageLoc().c_str();
-	int fd = open (fileAddress, O_CREAT | O_RDWR | O_SYNC, 0666);
+	int fd = open (fileAddress, O_CREAT | O_RDWR | O_FSYNC, 0666);
 	if (fd == -1){
 		cout << "Error happens in opening file" << endl;
 	}else{
