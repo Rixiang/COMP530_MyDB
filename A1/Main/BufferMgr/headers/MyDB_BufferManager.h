@@ -53,6 +53,7 @@ public:
 	// FEEL FREE TO ADD ADDITIONAL PUBLIC METHODS 
 
 	//LRU. When a new page is loaded, add a LRU node to the tail. Return LRU number of that page.
+
 	int addToLruTail(string pageId);
 
 	//LRU. When a page is accessed, update LRU number and position in LRU table.
@@ -71,12 +72,11 @@ private:
 	char ** dataPool;
 	queue<void *> emptySlotQueue;
 
-	unordered_map<string, MyDB_PageHandle> pageTable;
-	MyDB_LRU lru;
-
 	static unsigned int incLruNum;
 
+    std::unordered_map<string, MyDB_PageHandle> pageTable;
 
+    std::map<int, string> lruTable;
 };
 
 #endif

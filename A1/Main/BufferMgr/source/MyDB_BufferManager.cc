@@ -93,9 +93,11 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 		this->emptySlotQueue.push(this->bufferPool[i]);
 	}
 
+
 }
 
 MyDB_BufferManager :: ~MyDB_BufferManager () {
+
 	for (int i = 0; i < this->numPages; i++){
 		delete this->bufferPool[i];
 	}
@@ -131,4 +133,5 @@ string MyDB_BufferManager :: evictFromLruHead() {
 }
 	
 #endif
+
 
