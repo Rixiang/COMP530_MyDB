@@ -64,7 +64,9 @@ private:
 	// YOUR STUFF HERE
 	size_t pageSize;
 	size_t numPages;
-	string tempFIile;
+	string tempFile;
+
+	void ** dataPool;
 
 	static unsigned int incLruNum;
 

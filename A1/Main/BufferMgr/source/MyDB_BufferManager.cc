@@ -13,7 +13,7 @@ using namespace std;
 
 MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i) {
 	MyDB_PageHandle pageHandle = nullptr;
-	if (whichTable == NULL){
+	if (whichTable == nullptr){
 		return pageHandle;
 	}
 
@@ -24,11 +24,9 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	string pageId = whichTable -> getName().c_str() + to_string(i);
 	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
-        	cout << pageId << " not found\n";
+        cout << pageId << " not found\n";
         
-		// get the file descripter
-		int fd = open (fileAddress, O_CREAT | O_RDWR | O_SYNC, 0666);
-		off_t offset = i * pageSize;
+		
 		// map the page with the virtual address space
 		char *addr = mmap(NULL, pageSize, PROT_READ, MAP_PRIVATE, fd, offset);
 	    	if (addr == MAP_FAILED){
@@ -79,9 +77,9 @@ void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
 
 MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string tempF) {
 	// initialize private class members
-	pageSize = pSize;
-	numPages = numP;
-	tempFile = tempF;
+	this->pageSize = pSize;
+	this->numPages = numP;
+	this->empFile = tempF;
     incLruNum = 0;
 
 }
