@@ -119,9 +119,7 @@ void MyDB_PageBase :: destroyPage(){
 	if (this->dirty == true){
 		writeData();		// write page back to disk if page has been modified
 	}
-	cout << "before delete" << endl;
 	//delete this;
-	cout << "after delete" << endl;
 }
 
 MyDB_PageBase :: ~MyDB_PageBase () {

@@ -55,11 +55,9 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 		        cout << "page to be evicted is with address: " << address << endl;
 		        // evict this page from buffer
 		        search->second->destroyPageHandle();
-		        cout << "sad" << endl;
 		        if (search->second->getPage() != nullptr){
 		        	search->second->getPage()->destroyPage();
 		        }
-		        cout << "sadsad" << endl;
 		        pageTable.erase(evictedPageId);
 		    }else {
 		        cout << "Page to be evicted not found\n";
@@ -211,10 +209,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
+cout << pageId << " before strange\n";
         	string evictedPageId = evictFromLruHead();
+        	        		        		cout << pageId << " strange\n";
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
+
 		        address = search->second->getBytes();
 		        // evict this page from buffer
 		        search->second->destroyPageHandle();

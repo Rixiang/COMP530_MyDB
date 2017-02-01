@@ -115,7 +115,7 @@ int main () {
 			writeNums (bytes, 64, i);
 			twoHandle->wroteBytes ();
 		}
-
+		cout << "end first table" << endl;
 		// make a second table
 		MyDB_TablePtr table2 = make_shared <MyDB_Table> ("tempTable2", "barfoo");
 		for (int i = 0; i < 100; i++) {

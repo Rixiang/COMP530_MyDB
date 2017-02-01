@@ -27,7 +27,7 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tab
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
-	this -> destroyPageHandle();
+	//this -> destroyPageHandle();
 }
 
 void MyDB_PageHandleBase :: destroyPageHandle(){
@@ -35,7 +35,7 @@ void MyDB_PageHandleBase :: destroyPageHandle(){
 	if (this->page->getCountHandle() == 0){
 		this->page->destroyPage();
 	}
-	delete this;
+	//delete this;
 }
 
 
