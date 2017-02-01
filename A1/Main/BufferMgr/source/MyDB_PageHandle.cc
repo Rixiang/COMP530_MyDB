@@ -5,14 +5,29 @@
 #include <memory>
 #include "MyDB_PageHandle.h"
 
-void *MyDB_PageHandleBase :: getBytes () {
-	return nullptr;
+void * MyDB_PageHandleBase :: getBytes () {
+	return this->page->getPageAddr();
 }
 
 void MyDB_PageHandleBase :: wroteBytes () {
+	this->page->wroteBytes();
+}
+
+MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t pageSize, void * pageAddr, long i){
+	if (page != nullptr){
+		page->countHandle ++;
+		this->page = page;
+	}else{
+		page = new MyDB_PageBase(id, pageSize, pageAddr, i);
+		this->page = page;
+	}
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
+	this->page->countHandle --;
+	if (this->page->countHandle == 0){
+		this->page->destroyPage();
+	}
 }
 
 #endif

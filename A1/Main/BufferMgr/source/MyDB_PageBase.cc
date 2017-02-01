@@ -7,17 +7,16 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-MyDB_PageBase :: MyDB_PageBase (size_t pageSize, void * pageAddr, long i) {
+MyDB_PageBase :: MyDB_PageBase (string id, size_t pageSize, void * pageAddr, long i) {
+	this->pageID = id;
 	this->pageSize = pageSize;
 	this->pageAddr = pageAddr;
 	this->pageIndex = i;
 	this->dirty = false;
 	this->pinned = false;
+	this->countHandle = 1;
 	this->loadData();
 }
-
-MyDB_PageBase :: ~MyDB_PageBase () {}
-
 
 void MyDB_PageBase :: wroteBytes () {
 	this->dirty = true;
@@ -91,8 +90,17 @@ void MyDB_PageBase :: loadData(){
 
 }
 
-void MyDB_PageBase :: keep(){}
-void MyDB_Page :: release(){}
+void MyDB_Page :: destroyPage(){
+	if (this->dirty == true){
+		writeData();		// write page back to disk when page has been modified
+	}
+	delete this;
+}
 
+MyDB_PageBase :: ~MyDB_PageBase () {
+	if (this->countHandle == 0){
+		this->destroyPage();
+	}
+}
 
 #endif

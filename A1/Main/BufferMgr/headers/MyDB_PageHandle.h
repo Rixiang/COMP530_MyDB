@@ -36,6 +36,9 @@ public:
 
 	// FEEL FREE TO ADD ADDITIONAL PUBLIC METHODS
 
+	// Constructor
+	MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t pageSize, void * pageAddr, long i);
+
 private:
 
 	// YOUR CODE HERE

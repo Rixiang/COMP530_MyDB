@@ -28,6 +28,8 @@ private:
 	bool dirty;				// true if the data has been modified, and need to be written back before eviction
 
 	MyDB_TablePtr tablePtr;	// pointer to the table which contains this page
+
+	int countHandle;		// count number of page handles pointint to this page
 	
 public:
 	
@@ -48,12 +50,11 @@ public:
 	void writeData();
 	void loadData();
 
-	void keep();
-	void release();
+	void destroyPage();
 
 
 	//Constructor for a page
-	MyDB_Page (size_t pageSize, void * pageAddr, long i);
+	MyDB_Page (string id, size_t pageSize, void * pageAddr, long i);
 	
 	//Deconstructor for a page
 	~MyDB_Page ();
