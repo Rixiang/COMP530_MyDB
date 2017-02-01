@@ -57,7 +57,7 @@ public:
 	//LRU. When a page is accessed, update LRU number and position in LRU table.
 	int moveToLruTail(int lru);
     
-	//When evict a page, remove the from the head. Return the page Id.
+	//When evict a page, remove the from the head. Return the evicted page Id.
 	string evictFromLruHead();
 private:
 

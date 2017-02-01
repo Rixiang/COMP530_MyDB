@@ -40,7 +40,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
     	pageTable.insert(make_pair<string, MyDB_PageHandle>(pageId, pageHandle));
     	
     	// add the page id into the LRU table
-		lru.addToTail(pageId);
+		addToLruTail(pageId);
 
 	}
 	else{
@@ -63,7 +63,44 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr, long) {
-	return nullptr;		
+    MyDB_PageHandle pageHandle = nullptr;
+	if (whichTable == nullptr){
+		return pageHandle;
+	}
+
+	const char *fileAddress = whichTable -> getStorageLoc().c_str();
+
+	// check whether the requested page is in the buffer
+	// if is already in the page
+	string pageId = whichTable -> getName().c_str() + to_string(i);
+	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
+	if (got == pageTable.end()){
+        cout << pageId << " not found\n";
+        
+		
+		// map the page with the virtual address space
+		char *addr = mmap(NULL, pageSize, PROT_READ, MAP_PRIVATE, fd, offset);
+	    	if (addr == MAP_FAILED){
+	    		handle_error("mmap");
+    		}
+
+    	// create a page handle to the page requested
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, pageId, this->pageSize, , i);
+
+    	// add the page handle into the page table in the buffer
+    	pageTable.insert(make_pair<string, MyDB_PageHandle>(pageId, pageHandle));
+    	
+    	// add the page id into the LRU table
+		addToLruTail(pageId);
+
+	}
+	else{
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->page, pageId, this->pageSize, i);
+
+		// NO need to put pinned page in LRU
+    }
+	
+	return pageHandle;
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
@@ -71,8 +108,9 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 }
 
 void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
-	//
-	lru.addToTail(pageID);
+    //Unpin the page and put in lruTable.
+    unpinMe->unpinPage()
+    addToLruTail(unpinMe->getPageId());
 }
 
 MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string tempF) {
@@ -85,6 +123,7 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 }
 
 MyDB_BufferManager :: ~MyDB_BufferManager () {
+    lruTable.clear()
 }
 
 //LRU. When a new page is loaded, add a LRU node to the tail. Return LRU number of that page.
@@ -112,5 +151,4 @@ string MyDB_BufferManager :: evictFromLruHead() {
     string pageId = it->second;
     lruTable.erase(it);
 }
-	
 #endif
