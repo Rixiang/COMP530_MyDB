@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <iostream>
 
 MyDB_PageBase :: MyDB_PageBase (string id, size_t pageSize, void * pageAddr, long i) {
 	this->pageId = id;
@@ -46,7 +47,7 @@ int MyDB_PageBase :: getLRU(){
 	return this->pageLRU;
 }
 
-void MyDB_PageBase :: getLRU(int lru){
+void MyDB_PageBase :: setLRU(int lru){
 	this->pageLRU = lru;
 }
 
@@ -61,7 +62,7 @@ void MyDB_PageBase :: decreaseCountHandle(){
 }
 
 void MyDB_PageBase :: writeData(){
-	const char *fileAddress = (this->whichTable)->getStorageLoc().c_str();
+	const char *fileAddress = (this->tablePtr)->getStorageLoc().c_str();
 	int fd = open (fileAddress, O_CREAT | O_RDWR | O_FSYNC, 0666);	// 'O_FSYNC' to let writes not buffered by the operating system
 	if (fd == -1){
 		cout << "Error happens in opening file" << endl;
@@ -77,15 +78,15 @@ void MyDB_PageBase :: writeData(){
 			}
 		}
 	}
-	int close = close(fd);		// close the file descripter
-	if (close != 0){
+	int closeId = close(fd);		// close the file descripter
+	if (closeId != 0){
 		cout << "Error happens in closing file" << endl;
 	}
 	
 }
 
 void MyDB_PageBase :: loadData(){
-	const char *fileAddress = (this->whichTable)->getStorageLoc().c_str();
+	const char *fileAddress = (this->tablePtr)->getStorageLoc().c_str();
 	int fd = open (fileAddress, O_CREAT | O_RDWR | O_FSYNC, 0666);
 	if (fd == -1){
 		cout << "Error happens in opening file" << endl;
@@ -101,14 +102,14 @@ void MyDB_PageBase :: loadData(){
 			}
 		}
 	}
-	int close = close(fd);		// close the file descripter
-	if (close != 0){
+	int closeId = close(fd);		// close the file descripter
+	if (closeId != 0){
 		cout << "Error happens in closing file" << endl;
 	}
 
 }
 
-void MyDB_Page :: destroyPage(){
+void MyDB_PageBase :: destroyPage(){
 	if (this->dirty == true){
 		writeData();		// write page back to disk when page has been modified
 	}

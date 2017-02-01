@@ -72,7 +72,7 @@ private:
 	char ** dataPool;
 	queue<void *> emptySlotQueue;
 
-	static unsigned int incLruNum;
+	unsigned int incLruNum;
 
     unordered_map<string, MyDB_PageHandle> pageTable;
 

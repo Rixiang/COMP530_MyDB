@@ -15,7 +15,7 @@ class MyDB_PageBase {
 
 private: 
 	
-	string pageID;			// id of the page
+	string pageId;			// id of the page
 
 	long pageIndex;			// index of the page in its table
 

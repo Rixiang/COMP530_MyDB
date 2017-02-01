@@ -19,7 +19,7 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, string id, size_t
 		page->increaseCountHandle();
 		this->page = page;
 	}else{
-		page = new MyDB_PageBase(id, pageSize, pageAddr, i);
+		page = make_shared<MyDB_PageBase>(id, pageSize, pageAddr, i);
 		this->page = page;
 	}
 }
@@ -28,7 +28,7 @@ MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
 	this -> destroyPageHandle();
 }
 
-MyDB_PageHandleBase :: destroyPageHandle(){
+void MyDB_PageHandleBase :: destroyPageHandle(){
 	//this->page->countHandle --;
 	page->decreaseCountHandle();
 	if (this->page->getCountHandle() == 0){
@@ -50,7 +50,7 @@ string MyDB_PageHandleBase :: getPageId () {
 	return this->page->getPageId();
 }
 
-int MyDB_PageHandleBase :: getPage () {
+MyDB_PagePtr MyDB_PageHandleBase :: getPage () {
 	return this->page;
 }
 
