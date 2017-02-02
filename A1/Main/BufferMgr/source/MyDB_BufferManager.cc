@@ -144,7 +144,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 		lru -> moveToLruTail(pageHandle->getLRU());
     }
 
-    anonymousNextAvail += pageHandle -> getPage() -> getPageSize();
+    anonymousNextAvail++;
 	
 	return pageHandle;
 }
@@ -252,7 +252,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 		// No need update LRU
     }
 
-    anonymousNextAvail += pageHandle -> getPage() -> getPageSize();
+    anonymousNextAvail++;
 	
 	return pageHandle;
 

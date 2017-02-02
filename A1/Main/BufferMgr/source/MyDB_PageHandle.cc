@@ -28,6 +28,7 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tab
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
+    cout << "call handle base destructoe with id;" << this->getPageId() <<endl;
 	this -> destroyPageHandle();
 }
 
