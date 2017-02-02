@@ -109,6 +109,7 @@ void MyDB_PageBase :: loadData(){
 		}else{
 			ssize_t numBytes = read(fd, this->pageAddr, this->pageSize);
 			if (numBytes == -1){
+				cout << pageAddr << endl;
 				cout << "Error happens in reading file" << endl;
 			}
 		}

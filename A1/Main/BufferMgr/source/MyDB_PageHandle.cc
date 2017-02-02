@@ -17,8 +17,11 @@ void MyDB_PageHandleBase :: wroteBytes () {
 MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i,bool anonymous, MyDB_LRU *lru, queue<void *> *poolptr){
 	if (page != nullptr){
 		//page->countHandle ++;
+		//page->increaseCountHandle();
+        //TODO
 		this->page = page;
 	}else{
+
 		//MyDB_PageBase pageBase = new MyDB_PageBase(id, tablePtr, pageSize, pageAddr, i);
 		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i, anonymous);
 		this->page = page;
@@ -42,6 +45,7 @@ void MyDB_PageHandleBase :: destroyPageHandle(){
     cout << "destroy page with id:" << this->page->getPageId() << endl;
     cout << "handle number:" << this->page->getCountHandle() << endl;
 	if (this->page->getCountHandle() == 0){
+
         cout << "anonymoust;" << this->page->getAnonymous() << endl;
         cout << "pinned;" << this->page->getPinned() << endl;
 
@@ -63,7 +67,6 @@ void MyDB_PageHandleBase :: destroyPageHandle(){
         //Pinned unnamed page
         //UnPinned unnamed page
 	}
-	//delete this;
 }
 
 
