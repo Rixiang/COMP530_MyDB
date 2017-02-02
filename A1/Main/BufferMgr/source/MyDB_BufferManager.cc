@@ -39,11 +39,12 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	if (whichTable == nullptr){
 		return pageHandle;
 	}
+    cout << "a:::::" << pageHandle.use_count() <<endl;
 
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = whichTable -> getName().c_str() + to_string(i);
-	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
+	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found in the pageHandle table\n";
 
@@ -52,12 +53,12 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
         	string evictedPageId = lru -> evictFromLruHead();
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
-		        address = search->second->getBytes();
+		        address = search->second.getBytes();
 		        cout << "page to be evicted is with address: " << address << endl;
 		        // evict this page from buffer
-		        search->second->destroyPageHandle();
-		        if (search->second->getPage() != nullptr){
-		        	search->second->getPage()->destroyPage();
+		        search->second.destroyPageHandle();
+		        if (search->second.getPage() != nullptr){
+		        	search->second.getPage()->destroyPage();
 		        }
 		        pageTable.erase(evictedPageId);
 		    }else {
@@ -71,8 +72,10 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
     	// create a page handle as well as read file from disk
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, lru);
 
+        cout << "b:::::" << pageHandle.use_count() <<endl;
     	// add the page handle into the page table in the buffer
-    	pageTable.insert({pageId, pageHandle});
+    	pageTable.insert({pageId, *pageHandle});
+        cout << "c:::::" << pageHandle.use_count() <<endl;
     	
     	// add the page id into the LRU table
 		lru -> addToLruTail(pageId);
@@ -80,12 +83,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
 
 		// update LRU
 		lru -> moveToLruTail(pageHandle->getLRU());
     }
 	
+        cout << "d:::::" << pageHandle.use_count() <<endl;
 	return pageHandle;		
 }
 
@@ -95,7 +99,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = this -> anonymousTable -> getName().c_str() + to_string(anonymousNextAvail);
-	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
+	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found\n";
 
@@ -105,11 +109,11 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
-		        address = search->second->getBytes();
+		        address = search->second.getBytes();
 		        // evict this page from buffer
-		        search->second->destroyPageHandle();
-		        if (search->second->getPage() != nullptr){
-		        	search->second->getPage()->destroyPage();
+		        search->second.destroyPageHandle();
+		        if (search->second.getPage() != nullptr){
+		        	search->second.getPage()->destroyPage();
 		        }
 		        pageTable.erase(evictedPageId);
 		    }else {
@@ -125,7 +129,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);
 
     	// add the page handle into the page table in the buffer
-    	pageTable.insert({pageId, pageHandle});
+    	pageTable.insert({pageId, *pageHandle});
     	
     	// add the page id into the LRU table
 		lru -> addToLruTail(pageId);
@@ -133,7 +137,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
 
 		// update LRU
 
@@ -154,7 +158,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = whichTable -> getName().c_str() + to_string(i);
-	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
+	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found in the pageHandle table\n";
 
@@ -164,11 +168,11 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
-		        address = search->second->getBytes();
+		        address = search->second.getBytes();
 		        // evict this page from buffer
-		        search->second->destroyPageHandle();
-		        if (search->second->getPage() != nullptr){
-		        	search->second->getPage()->destroyPage();
+		        search->second.destroyPageHandle();
+		        if (search->second.getPage() != nullptr){
+		        	search->second.getPage()->destroyPage();
 		        }
 		        pageTable.erase(evictedPageId);
 		    }else {
@@ -184,13 +188,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, lru);
 
     	// add the page handle into the page table in the buffer
-    	pageTable.insert({pageId, pageHandle});
+    	pageTable.insert({pageId, *pageHandle});
     	
         // No LRU update.
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
 
         // No LRU update.
     }
@@ -204,7 +208,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = this -> anonymousTable -> getName().c_str() + to_string(anonymousNextAvail);
-	unordered_map<string, MyDB_PageHandle>:: iterator got = pageTable.find(pageId);
+	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found\n";
 
@@ -217,11 +221,11 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
 
-		        address = search->second->getBytes();
+		        address = search->second.getBytes();
 		        // evict this page from buffer
-		        search->second->destroyPageHandle();
-		        if (search->second->getPage() != nullptr){
-		        	search->second->getPage()->destroyPage();
+		        search->second.destroyPageHandle();
+		        if (search->second.getPage() != nullptr){
+		        	search->second.getPage()->destroyPage();
 		        }
 		        pageTable.erase(evictedPageId);
 		    }else {
@@ -237,13 +241,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 		pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);	
 
     	// add the page handle into the page table in the buffer
-    	pageTable.insert({pageId, pageHandle});
+    	pageTable.insert({pageId, *pageHandle});
     	
     	//No need add the page id into the LRU table
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
 
 		// No need update LRU
     }

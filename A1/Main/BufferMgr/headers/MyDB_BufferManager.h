@@ -75,7 +75,7 @@ private:
 	queue<void *> emptySlotQueue;
 
 
-    unordered_map<string, MyDB_PageHandle> pageTable;
+    unordered_map<string, MyDB_PageHandleBase> pageTable;
 
     //std::map<int, string> lruTable;
     MyDB_LRU *lru;
