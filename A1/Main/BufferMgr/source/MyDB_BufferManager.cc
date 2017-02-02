@@ -44,6 +44,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = whichTable -> getName().c_str() + to_string(i);
+	pageId.append("jzhlx");
 	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found in the pageHandle table\n";
@@ -100,6 +101,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = this -> anonymousTable -> getName().c_str() + to_string(anonymousNextAvail);
+	pageId.append("jzhlx");
 	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found\n";
@@ -162,6 +164,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = whichTable -> getName().c_str() + to_string(i);
+	pageId.append("jzhlx");
 	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
         cout << pageId << " not found in the pageHandle table\n";
@@ -213,6 +216,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = this -> anonymousTable -> getName().c_str() + to_string(anonymousNextAvail);
+	pageId.append("jzhlx");
 	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
     
     cout << "\n get anon pinned with id:" << pageId <<endl;
