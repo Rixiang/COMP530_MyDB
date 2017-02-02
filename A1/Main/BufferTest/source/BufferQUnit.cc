@@ -48,6 +48,10 @@ int main () {
 		// allocate a pinned page
 		cout << "allocating pinned page\n";
 		MyDB_PageHandle pinnedPage = myMgr.getPinnedPage (table1, 0);
+		cout << "allocating pinned page handle:" << pinnedPage << endl;
+		cout << "allocating pinned page handle count:" << pinnedPage.use_count() << endl;
+		cout << "\n" << endl;
+        
 		char *bytes = (char *) pinnedPage->getBytes ();
 		writeNums (bytes, 64, 0);
 		pinnedPage->wroteBytes ();
@@ -58,6 +62,9 @@ int main () {
 		for (int i = 1; i < 10; i++) {
 			cout << "allocating pinned page\n";
 			MyDB_PageHandle temp = myMgr.getPinnedPage (table1, i);
+		cout << "allocating pinned page handle:" << pinnedPage << endl;
+		cout << "allocating pinned page handle count:" << pinnedPage.use_count() << endl;
+		cout << "\n" << endl;
 			char *bytes = (char *) temp->getBytes ();
 			writeNums (bytes, 64, i);
 			temp->wroteBytes ();

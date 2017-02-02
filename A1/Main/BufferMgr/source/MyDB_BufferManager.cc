@@ -70,7 +70,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 			this->emptySlotQueue.pop();
         }
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
 
         cout << "b:::::" << pageHandle.use_count() <<endl;
     	// add the page handle into the page table in the buffer
@@ -84,7 +84,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	else{
 		// create a page handle pointing to the existing pageBase Object
     	//pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
 
 		// update LRU
 		lru -> moveToLruTail(pageHandle->getLRU());
@@ -128,7 +128,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 		
     	// create a page handle as well as read file from disk
     	//pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue);
         
 
     	// add the page handle into the page table in the buffer
@@ -141,7 +141,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	else{
 		// create a page handle pointing to the existing pageBase Object
     	//pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue);
 
 		// update LRU
 
@@ -152,6 +152,11 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	
 	return pageHandle;
 }
+
+void MyDB_BufferManager ::  evict(void * address){
+
+}
+
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
     MyDB_PageHandle pageHandle = nullptr;
@@ -167,44 +172,63 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
         cout << pageId << " not found in the pageHandle table\n";
 
         void * address;
+        cout << "getpaget(...): q size: " << emptySlotQueue.size() << endl;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-        	string evictedPageId = lru -> evictFromLruHead();
-
-        	auto search = pageTable.find(evictedPageId);
-        	if(search != pageTable.end()) {
-		        address = search->second.getBytes();
-		        // evict this page from buffer
-		        //search->second.destroyPageHandle();
-		        if (search->second.getPage() != nullptr){
-		        	//search->second.getPage()->destroyPage();
-		            pageTable.erase(evictedPageId);
-		        }
-		    }else {
-		        cout << "Page to be evicted not found\n";
-		    }
+            cout << "getpaget(...): q.size = 0 evict: " << endl;
+            string evictedPageId = lru -> evictFromLruHead();
+            cout << "getpaget(...): q.size = 0 evict pageID: " << evictedPageId <<endl;
+            auto search = pageTable.find(evictedPageId);
+            if(search != pageTable.end()) {
+                cout << "getpaget(...): found in buffer table evict pageID: " << evictedPageId <<endl;
+                address = search->second.getBytes();
+                cout << "getpaget(...): evict pageID, addree: " << evictedPageId << " "<< address <<endl;
+                // evict this page from buffer
+                //search->second.destroyPageHandle();
+                if (search->second.getPage() != nullptr){
+                    cout << "getpaget(...): evict pageID, getPage: " << evictedPageId << " "<< search->second.getPage() <<endl;
+                    //search->second.getPage()->destroyPage();
+                    cout << "getpaget(...): q size before erase: " << emptySlotQueue.size() << endl;
+                    pageTable.erase(evictedPageId);
+                    cout << "getpaget(...): q size after erase: " << emptySlotQueue.size() << endl;
+                }
+            }else {
+                cout << "Page to be evicted not found\n";
+            }
         }else{
+            cout << "getpaget(...): q.size > 0 no evict: " << endl;
+               cout << "getpaget(...): q size before pop: " << emptySlotQueue.size() << endl;
         	// get address for one empty slot to put the data
+            cout << "getpaget(...): emptyslot " << emptySlotQueue.front() << endl;
 			address = this->emptySlotQueue.front();
 			this->emptySlotQueue.pop();
+            cout << "getpaget(...): q size after pop: " << emptySlotQueue.size() << endl;
         }
 		
+        cout << "getpaget(...): before create pagehanlde use count: " << pageHandle.use_count() << endl;
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
+        cout << "getpaget(...): after create pagehanlde use count: " << pageHandle.use_count() << endl;
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
+        cout << "getpaget(...): insert pagehanldebase use count: " << pageHandle.use_count() << endl;
     	
         // No LRU update.
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
 
         // No LRU update.
     }
 	
+    cout << "getpaget(...): pageHandle: " << pageHandle << endl;
+    cout << "getpaget(...): pageHandle count: " << pageHandle.use_count() << endl;
 	return pageHandle;
 }
+
+
+
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
     MyDB_PageHandle pageHandle = nullptr;
@@ -244,7 +268,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
         }
 
 		// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
@@ -253,7 +277,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue);
 
 		// No need update LRU
     }
