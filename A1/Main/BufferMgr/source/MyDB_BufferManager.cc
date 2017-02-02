@@ -69,7 +69,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 			this->emptySlotQueue.pop();
         }
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, lru);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
@@ -80,7 +80,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
 
 		// update LRU
 		lru -> moveToLruTail(pageHandle->getLRU());
@@ -122,7 +122,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
         }
 		
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
@@ -133,7 +133,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
 
 		// update LRU
 
@@ -181,7 +181,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
         }
 		
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, lru);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
@@ -190,7 +190,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
 
         // No LRU update.
     }
@@ -234,7 +234,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
         }
 
 		// create a page handle as well as read file from disk
-		pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail);	
+		pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);	
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, pageHandle});
@@ -243,7 +243,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 	}
 	else{
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second->getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
 
 		// No need update LRU
     }
@@ -257,7 +257,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 void MyDB_BufferManager :: unpin (MyDB_PageHandle unpinMe) {
     //Unpin the page and put in lruTable.
     unpinMe->unpinPage();
-    lru -> addToLruTail(unpinMe->getPageId());
+    //lru -> addToLruTail(unpinMe->getPageId());
 }
 
 

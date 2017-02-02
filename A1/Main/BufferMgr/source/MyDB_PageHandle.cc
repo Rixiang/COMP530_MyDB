@@ -14,7 +14,7 @@ void MyDB_PageHandleBase :: wroteBytes () {
 	this->page->wroteBytes();
 }
 
-MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i){
+MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i, MyDB_LRU *lru){
 	if (page != nullptr){
 		//page->countHandle ++;
 		page->increaseCountHandle();
@@ -24,6 +24,7 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tab
 		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i);
 		this->page = page;
 	}
+    this->lru = lru;
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
@@ -57,6 +58,7 @@ MyDB_PagePtr MyDB_PageHandleBase :: getPage () {
 
 void MyDB_PageHandleBase :: unpinPage () {
 	this->page->setPinned(false);
+    lru -> addToLruTail(this->page->getPageId());
 }
 #endif
 

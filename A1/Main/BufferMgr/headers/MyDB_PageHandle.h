@@ -4,6 +4,7 @@
 
 #include <memory>
 #include "MyDB_PageBase.h"
+#include "MyDB_LRU.h"
 
 
 // page handles are basically smart pointers
@@ -55,7 +56,7 @@ public:
     void unpinPage();
         
 	// Constructor
-	MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i);
+	MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i, MyDB_LRU *lru);
 
 	void destroyPageHandle();
 
@@ -64,6 +65,7 @@ private:
 
 	// YOUR CODE HERE
 	MyDB_PagePtr page;
+    MyDB_LRU *lru;
 };
 
 #endif
