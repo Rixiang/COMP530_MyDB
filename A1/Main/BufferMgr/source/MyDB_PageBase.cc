@@ -22,6 +22,10 @@ MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSi
     this->anonymous = anonymous;
 }
 
+bool MyDB_PageBase :: getAnonymous(){
+	return this->anonymous;
+}
+
 void MyDB_PageBase :: wroteBytes () {
 	this->dirty = true;
 }
