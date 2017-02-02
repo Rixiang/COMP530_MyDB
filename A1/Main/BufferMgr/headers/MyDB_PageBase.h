@@ -27,6 +27,8 @@ private:
 
 	bool dirty;			// true if the data has been modified, and need to be written back before eviction
 
+	bool anonymous;			// true if anonymous
+
 	MyDB_TablePtr tablePtr;	// pointer to the table which contains this page
 
 	int countHandle;		// count number of page handles pointint to this page
@@ -60,12 +62,13 @@ public:
 	void loadData();
 
 	
+	bool getAnonymous();
 
 	void destroyPage();
 
 
 	//Constructor for a page
-	MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i);
+	MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i, bool anonymous);
 	
 	//Deconstructor for a page
 	~MyDB_PageBase ();

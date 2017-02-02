@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <iostream>
 
-MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i) {
+MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i, bool anonymous) {
 	this->pageId = id;
 	this->pageSize = pageSize;
 	this->pageAddr = pageAddr;
@@ -19,6 +19,11 @@ MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSi
 	this->tablePtr = tablePtr;
 	this->pageLRU = 1;
 	this->loadData();
+    this->anonymous = anonymous;
+}
+
+bool MyDB_PageBase :: getAnonymous(){
+	return this->anonymous;
 }
 
 void MyDB_PageBase :: wroteBytes () {
