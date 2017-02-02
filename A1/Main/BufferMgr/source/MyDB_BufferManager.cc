@@ -179,6 +179,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 			this->emptySlotQueue.pop();
         }
 		
+
     	// create a page handle as well as read file from disk
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i);
 

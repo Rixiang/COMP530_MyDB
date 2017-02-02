@@ -16,11 +16,9 @@ void MyDB_PageHandleBase :: wroteBytes () {
 
 MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i){
 	if (page != nullptr){
-		//page->countHandle ++;
 		page->increaseCountHandle();
 		this->page = page;
 	}else{
-		//MyDB_PageBase pageBase = new MyDB_PageBase(id, tablePtr, pageSize, pageAddr, i);
 		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i);
 		this->page = page;
 	}
@@ -33,9 +31,12 @@ MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
 void MyDB_PageHandleBase :: destroyPageHandle(){
 	page->decreaseCountHandle();
 	if (this->page->getCountHandle() == 0){
+		if (this->page->getPinned() == true){
+			unpin();
+		}
+		//emptySlotQueue;
 		this->page->destroyPage();
 	}
-	//delete this;
 }
 
 
