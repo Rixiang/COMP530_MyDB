@@ -48,10 +48,8 @@ public:
     //Get page ID of the page.
 	string getPageId();
 
-
  	//Get Page_Base Object
 	MyDB_PagePtr getPage();
-
 
     //Unpin a page.
     void unpinPage();
@@ -60,14 +58,19 @@ public:
 	MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, 
 		long i, bool anonymous, MyDB_LRU *lru, queue<void *>* pool, queue<off_t> *emptySlotTmpFQueue);
 
+    //Destructor.
 	void destroyPageHandle();
 
 
 private:
-
 	// YOUR CODE HERE
+    // A pointer to page.
 	MyDB_PagePtr page;
+
+    // A pinter to LRU.
     MyDB_LRU *lru;
+
+    // A pointer to available pool.
     queue<void *> * poolptr;
 };
 

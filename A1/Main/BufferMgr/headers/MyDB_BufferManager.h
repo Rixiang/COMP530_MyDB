@@ -64,28 +64,35 @@ public:
 	//When evict a page, remove the from the head. Return the evicted page Id.
 	string evictFromLruHead();
 
+    //Evict a page.
     void * evict();
 
 private:
 
 	// YOUR STUFF HERE
+    // Page Size
 	size_t pageSize;
+    // Number of Pages.
 	size_t numPages;
+    // Tmp file.
 	string tempFile;
 
+    // Data Pool.
 	char ** dataPool;
+    // Avaliable queue.
 	queue<void *> emptySlotQueue;
-
-
+    //PageTable, pageId to PageHandleBase.
     unordered_map<string, MyDB_PageHandleBase> pageTable;
 
-    //std::map<int, string> lruTable;
+    //LRU.
     MyDB_LRU *lru;
-	//unsigned int incLruNum;
 
+    //Anonymous table.
     MyDB_TablePtr anonymousTable;
+    //Anonymous offset.
     int anonymousNextAvail;
 
+    //Anonymous queue.
     queue<off_t> emptySlotTmpFQueue;
 };
 

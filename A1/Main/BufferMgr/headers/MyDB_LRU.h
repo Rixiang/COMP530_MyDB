@@ -18,14 +18,14 @@ class MyDB_LRU{
         //When evict a page, remove the from the head. Return the page Id.
         string evictFromLruHead();
 
-        //When evict a page, remove the from the head. Return the page Id.
+        //Remove a page from a LRU. Happens when a unpinned page is get by getpinnedpage.
         string removeFromLru(int lru);
 
         MyDB_LRU();
 
         ~MyDB_LRU();
 
-//private:
+private:
 	    unsigned int incLruNum;
         std::map<int, string> lruTable;
 };

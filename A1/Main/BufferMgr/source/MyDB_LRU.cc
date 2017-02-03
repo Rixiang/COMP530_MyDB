@@ -37,6 +37,7 @@ string MyDB_LRU :: evictFromLruHead() {
     return pageId;
 }
 
+//Remove a page from a LRU. Happens when a unpinned page is get by getpinnedpage.
 string MyDB_LRU :: removeFromLru(int lru) {
     string pageId = "";
     if( lru == 0 || lruTable.size() == 0 ) {

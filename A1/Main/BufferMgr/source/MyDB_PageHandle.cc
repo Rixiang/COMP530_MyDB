@@ -14,12 +14,12 @@ void MyDB_PageHandleBase :: wroteBytes () {
 	this->page->wroteBytes();
 }
 
+// Constructor of PageHandleBase.
 MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, 
 		void * pageAddr, long i,bool anonymous, MyDB_LRU *lru, queue<void *> *poolptr, queue<off_t> *emptySlotTmpFQueue){
 	if (page != nullptr){
 		this->page = page;
 	}else{
-		//MyDB_PageBase pageBase = new MyDB_PageBase(id, tablePtr, pageSize, pageAddr, i);
 		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i, anonymous, emptySlotTmpFQueue);
 		this->page = page;
 	}
@@ -29,6 +29,7 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tab
     this->poolptr = poolptr;
 }
 
+// Destructor.
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
 	this -> destroyPageHandle();
 }
@@ -36,10 +37,13 @@ MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
 void MyDB_PageHandleBase :: destroyPageHandle(){
 	page->decreaseCountHandle();
 	if (this->page->getCountHandle() == 0){
+        // When handle count is 0.
         if(this->page->getAnonymous()){
+            //Clean anonymous page.
             this -> poolptr->push(this->page->getPageAddr());
 		    this->page->destroyPage();
         } else if(this->page->getPinned()){
+            //Unpin a pinned page.
             this -> unpinPage();
         }
 	}
