@@ -108,27 +108,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	// check whether the requested page is in the buffer
 	// if is already in the page
 	string pageId = this -> anonymousTable -> getName().c_str() + to_string(anonymousNextAvail);
-	pageId.append("jzhlx");
 	unordered_map<string, MyDB_PageHandleBase>:: iterator got = pageTable.find(pageId);
 	if (got == pageTable.end()){
-        cout << pageId << " not found\n";
+        cout << pageId << " not found in the pageHandle table\n";
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-        	string evictedPageId = lru -> evictFromLruHead();
-
-        	auto search = pageTable.find(evictedPageId);
-        	if(search != pageTable.end()) {
-		        address = search->second.getBytes();
-		        // evict this page from buffer
-		        //search->second.destroyPageHandle();
-		        if (search->second.getPage() != nullptr){
-		        //	search->second.getPage()->destroyPage();
-		            pageTable.erase(evictedPageId);
-		        }
-		    }else {
-		        cout << "Page to be evicted not found\n";
-		    }
+            evict(false);
         }else{
         	// get address for one empty slot to put the data
 			address = this->emptySlotQueue.front();
@@ -138,7 +124,6 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
     	// create a page handle as well as read file from disk
     	//pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue);
-        
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
@@ -153,10 +138,17 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
     	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue);
 
 		// update LRU
-
-		lru -> moveToLruTail(pageHandle->getLRU());
+        if(pageHandle->getPage()->getPinned()==true) {
+            //Previouly Pinned page, change to Unpinned.
+            cout << "before unpin it:"<< pageHandle->getPage()->getPinned() <<endl;
+            pageHandle->unpinPage();
+            cout << "waht is get from lru?"<< pageHandle->getPage()->getLRU() <<endl;
+            cout << "after unpin it:"<< pageHandle->getPage()->getPinned() <<endl;
+        } else {
+            //Previously Unpinned page, stay Unpinned.
+		    lru -> moveToLruTail(pageHandle->getLRU());
+        }
     }
-
     anonymousNextAvail++;
 	
 	return pageHandle;
