@@ -47,9 +47,7 @@ bool MyDB_PageBase :: getPinned(){
 }
 
 void MyDB_PageBase :: setPinned(bool paraPin){
-    cout<< "PageBase: set pinned to " << paraPin <<endl;
 	this->pinned = paraPin;
-    cout<< "PageBase: after set pinned to " << pinned <<endl;
 }
 
 int MyDB_PageBase :: getLRU(){
@@ -125,7 +123,7 @@ void MyDB_PageBase :: loadData(){
 
 void MyDB_PageBase :: destroyPage(){
 	if (this->dirty == true){
-		cout << "[Write Back]: Page id: " <<  this-> pageId <<  endl; 
+		//cout << "[Write Back]: Page id: " <<  this-> pageId <<  endl; 
 		writeData();		// write page back to disk if page has been modified
 	}
 	//delete this;

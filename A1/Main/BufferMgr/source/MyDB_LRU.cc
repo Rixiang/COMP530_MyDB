@@ -33,16 +33,11 @@ string MyDB_LRU :: evictFromLruHead() {
     }
     std::map<int,string>::iterator it = lruTable.begin();
     string pageId = it->second;
-    cout << "Call LRU EVICT: lru size:" << lruTable.size() <<endl;
-    cout << "\nCall LRU EVICT: lrunumber:" << it->first <<endl;
-    cout << "Call LRU EVICT: id in page:"<< it->second <<endl;
     this->lruTable.erase(it);
-    cout << "Call LRU EVICT: pageID:" << pageId << endl;
     return pageId;
 }
 
 string MyDB_LRU :: removeFromLru(int lru) {
-    cout << "Call REmove from lru: lru:" << lru <<endl;
     string pageId = "";
     if( lru == 0 || lruTable.size() == 0 ) {
         return "";
@@ -50,9 +45,6 @@ string MyDB_LRU :: removeFromLru(int lru) {
     std::map<int,string>::iterator it = lruTable.find(lru);
     if (it != lruTable.end()) {
         pageId = it->second;
-        cout << "\nCall LRU remove: lru size:" << lruTable.size() <<endl;
-        cout << "Call LRU remove: lrunumber:" << it->first <<endl;
-        cout << "Call LRU remove: id in page:"<< it->second <<endl;
         lruTable.erase(it);
     }
     return pageId;

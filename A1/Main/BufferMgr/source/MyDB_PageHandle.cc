@@ -16,12 +16,8 @@ void MyDB_PageHandleBase :: wroteBytes () {
 
 MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i,bool anonymous, MyDB_LRU *lru, queue<void *> *poolptr){
 	if (page != nullptr){
-		//page->countHandle ++;
-		//page->increaseCountHandle();
-        //TODO
 		this->page = page;
 	}else{
-
 		//MyDB_PageBase pageBase = new MyDB_PageBase(id, tablePtr, pageSize, pageAddr, i);
 		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i, anonymous);
 		this->page = page;
@@ -29,60 +25,23 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tab
 	page->increaseCountHandle();
 
     this->lru = lru;
-    cout << "parameter lruptr" << lru <<endl;
-    cout << "thsi lrptr" << lru <<endl;
     this->poolptr = poolptr;
 }
 
 MyDB_PageHandleBase :: ~MyDB_PageHandleBase () {
-    cout << "call handle base destructoe with id;" << this->getPageId() <<endl;
-    cout << "handle number before destroy:" << this->page->getCountHandle() << endl;
 	this -> destroyPageHandle();
-    cout << "handle number after destroy:" << this->page->getCountHandle() << endl;
 }
 
 void MyDB_PageHandleBase :: destroyPageHandle(){
-    cout << "a pool size befoe destroy;" << poolptr->size () <<endl;
-	//if (this->page->getCountHandle() > 0){
-	    page->decreaseCountHandle();
-    //}
-    cout << "destroy page with id:" << this->page->getPageId() << endl;
-    cout << "handle number:" << this->page->getCountHandle() << endl;
+	page->decreaseCountHandle();
 	if (this->page->getCountHandle() == 0){
-
-        cout << "anonymoust;" << this->page->getAnonymous() << endl;
-        cout << "pinned;" << this->page->getPinned() << endl;
-
         if(this->page->getAnonymous()){
-            cout << "destroy unnam page" <<endl;
-            cout << "pool addres:" << poolptr <<endl;
-            cout << "pool size befoe destroy;" << poolptr->size () <<endl;
             this -> poolptr->push(this->page->getPageAddr());
-            cout << "pool size after destroy;" << poolptr->size () <<endl;
 		    this->page->destroyPage();
-            cout << "testhere" <<endl;
         } else if(this->page->getPinned()){
-            cout << "Before unpin;"  << this->page->getPinned() <<endl;
-            cout << "do unpin"  << endl;
-            cout << "a LRU size befoe unpin;" << lru->lruTable.size() <<endl;
-            cout << "a LRU adr befoe unpin;" << &lru <<endl;
             this -> unpinPage();
-            cout << "a LRU size after unpin;" << lru->lruTable.size() <<endl;
-            cout << "a LRU front 1st after unpin;" << lru->lruTable.begin()->first <<endl;
-            cout << "a LRU front 2nd after unpin;" << lru->lruTable.begin()->second <<endl;
-            cout << "a LRU end 1st after unpin;" << lru->lruTable.rbegin()->first <<endl;
-            cout << "a LRU end 2nd after unpin;" << lru->lruTable.rbegin()->second <<endl;
-            cout << "a LRU adr after unpin;" << &lru <<endl;
-            cout << "After unpin;"  << this->page->getPinned() <<endl;
         }
-        
-        //unPinned named page
-        //Do nothing
-        //Pinned unnamed page
-        //UnPinned unnamed page
 	}
-    cout << "a pool size after destroy;" << poolptr->size () <<endl;
-	//if (this->page->getCountHandle() > 0){
 }
 
 
