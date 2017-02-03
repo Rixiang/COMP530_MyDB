@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <iostream>
+
 
 MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, 
 								long i, bool anonymous, queue<off_t> *emptySlotTmpFQueue) {
@@ -83,6 +83,9 @@ void MyDB_PageBase :: writeData(){
 		cout << "Error happens in opening file" << endl;
 	}else{
 		off_t offset;
+		// for anonymous pages, if recycling for writting back the file is possible, do recycling
+		// 						else, write back the end of temporary file
+		// for non-anonymous pages, write back to the original disk address
 		if (this->anonymous == true && !emptySlotTmpFQueuePtr->empty()){
 				offset = emptySlotTmpFQueuePtr->front();
 				emptySlotTmpFQueuePtr->pop();
@@ -135,16 +138,11 @@ void MyDB_PageBase :: loadData(){
 
 void MyDB_PageBase :: destroyPage(){
 	if (this->dirty == true){
-		//cout << "[Write Back]: Page id: " <<  this-> pageId <<  endl; 
 		writeData();		// write page back to disk if page has been modified
 	}
-	//delete this;
 }
 
 MyDB_PageBase :: ~MyDB_PageBase () {
-	/*if (this->countHandle == 0){
-		this->destroyPage();
-	}*/
 }
 
 #endif

@@ -6,6 +6,7 @@
 #include <string>
 #include <queue>
 #include "MyDB_Table.h"
+#include <iostream>
 
 using namespace std;
 
@@ -36,25 +37,32 @@ private:
 	
 	int pageLRU;		// LRU number of this page
 
-	queue<off_t> * emptySlotTmpFQueuePtr;
+	queue<off_t> * emptySlotTmpFQueuePtr;		// queue for available slots in the temp file for anonymous pages to be written back
 	
 public:
 	
 	// getters and setters
-	string getPageId();		
+	string getPageId();	
+
 	size_t getPageSize();
+
 	void * getPageAddr();
+
+	long getPageIndex();
+
+	bool getAnonymous();
+
+	int getCountHandle();
 
 	bool getPinned();
 	void setPinned(bool pinned);
 
 	int getLRU();
 	void setLRU(int lru);
-	
-	long getPageIndex();
 
-    int getCountHandle();
+	// increase countHandle, when a new pageHandle is pointed to this page
 	void increaseCountHandle();
+	// decrease countHandle, when a pageHandle pointed to this page
 	void decreaseCountHandle();
 
 	MyDB_TablePtr getTable();
@@ -66,11 +74,7 @@ public:
 	void writeData();
 	void loadData();
 
-	
-	bool getAnonymous();
-
 	void destroyPage();
-
 
 	//Constructor for a page
 	MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, 
