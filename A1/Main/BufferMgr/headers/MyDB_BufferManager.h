@@ -64,7 +64,7 @@ public:
 	//When evict a page, remove the from the head. Return the evicted page Id.
 	string evictFromLruHead();
 
-    void * evict(bool pinned);
+    void * evict();
 
 private:
 
