@@ -57,7 +57,8 @@ public:
     void unpinPage();
         
 	// Constructor
-	MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i, bool anonymous, MyDB_LRU *lru, queue<void *>* pool);
+	MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, 
+		long i, bool anonymous, MyDB_LRU *lru, queue<void *>* pool, queue<off_t> *emptySlotTmpFQueue);
 
 	void destroyPageHandle();
 
