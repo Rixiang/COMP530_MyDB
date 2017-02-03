@@ -1,3 +1,4 @@
 *.o
 *scon*
 *~
+*DS_Store
