@@ -55,11 +55,11 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
 		        address = search->second.getBytes();
-		        cout << "page to be evicted is with address: " << address << endl;
+		        cout << "page to be evicted is " << evictedPageId << endl;
 		        // evict this page from buffer
 		        //search->second.destroyPageHandle();
 		        if (search->second.getPage() != nullptr){
-		        	//search->second.getPage()->destroyPage();
+		        	search->second.getPage()->destroyPage();
 		            pageTable.erase(evictedPageId);
 		        }
 		    }else {
@@ -113,10 +113,11 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
 		        address = search->second.getBytes();
+		        cout << "page to be evicted is " << evictedPageId << endl;
 		        // evict this page from buffer
 		        //search->second.destroyPageHandle();
 		        if (search->second.getPage() != nullptr){
-		        //	search->second.getPage()->destroyPage();
+		        	search->second.getPage()->destroyPage();
 		            pageTable.erase(evictedPageId);
 		        }
 		    }else {
@@ -189,6 +190,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
                 cout << "getpaget(...): found in buffer table evict pageID: " << evictedPageId <<endl;
                 address = search->second.getBytes();
                 cout << "getpaget(...): evict pageID, addree: " << evictedPageId << " "<< address <<endl;
+               	cout << "page to be evicted is " << evictedPageId << endl;
                 // evict this page from buffer
                 //search->second.destroyPageHandle();
                 if (search->second.getPage() != nullptr){
@@ -269,6 +271,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
+		        cout << "page to be evicted is " << evictedPageId << endl;
 
 		        address = search->second.getBytes();
 		        // evict this page from buffer
