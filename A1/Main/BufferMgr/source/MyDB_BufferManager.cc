@@ -62,7 +62,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
         }
 
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, 
+    						this->pageSize, address, i, false, lru, &emptySlotQueue, &emptySlotTmpFQueue);
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
@@ -74,7 +75,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 	else{
         //cout << "the page is already in the table."<<endl;
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId,
+    	 						this->pageSize, nullptr, i, false, lru, &emptySlotQueue, &emptySlotTmpFQueue);
 
 		// update LRU
         if(pageHandle->getPage()->getPinned()==true) {
@@ -104,7 +106,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-            evict();
+        	address = evict();
         }else{
         	// get address for one empty slot to put the data
 			address = this->emptySlotQueue.front();
@@ -113,7 +115,10 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 		
     	// create a page handle as well as read file from disk
     	//pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, lru);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue);
+
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId,
+    	 this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue, &emptySlotTmpFQueue);
+        
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
@@ -125,7 +130,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	else{
 		// create a page handle pointing to the existing pageBase Object
     	//pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, lru);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, 
+    		this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue, &emptySlotTmpFQueue);
 
 		// update LRU
         if(pageHandle->getPage()->getPinned()==true) {
@@ -140,6 +146,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	
 	return pageHandle;
 }
+
 
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
@@ -169,7 +176,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 		
 
     	// create a page handle as well as read file from disk
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, 
+    		this->pageSize, address, i, false, lru, &emptySlotQueue, &emptySlotTmpFQueue);
         pageHandle->getPage()->setPinned(true);
 
     	// add the page handle into the page table in the buffer
@@ -180,9 +188,10 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	else{
         // cout << "the page is already in the table."<<endl;
 		// create a page handle pointing to the existing pageBase Object
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
 
-		// Previous Unpinned, set it to pinned.
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, 
+    						this->pageSize, nullptr, i, false, lru, &emptySlotQueue, &emptySlotTmpFQueue);
+        cout << "is "<< pageId <<" pinned? "<< pageHandle->getPage()->getPinned() <<endl;
         if(pageHandle->getPage()->getPinned()==false) {
             pageHandle->getPage()->setPinned(true);
             lru -> removeFromLru(pageHandle->getPage()->getLRU());
@@ -209,7 +218,8 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 
         void * address ;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-            address = evict();
+
+			address = evict();
         }else{
         	// get address for one empty slot to put the data
 			address = this->emptySlotQueue.front();
@@ -217,10 +227,12 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
         }
 		
 
-    	// create a page handle as well as read file from disk
-    	//pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue);
-        pageHandle->getPage()->setPinned(true);
+
+		// create a page handle as well as read file from disk
+    	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, anonymousTable, pageId, 
+    			this->pageSize, address, anonymousNextAvail, true, lru, &emptySlotQueue, &emptySlotTmpFQueue);
+    	pageHandle->getPage()->setPinned(true);
+
 
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
@@ -230,8 +242,10 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 	else{
         // cout << "the page is already in the table."<<endl;
 		// create a page handle pointing to the existing pageBase Object
-    	//pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
-    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue);
+
+    	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), anonymousTable, pageId, 
+    			this->pageSize, nullptr, anonymousNextAvail, true, lru, &emptySlotQueue,  &emptySlotTmpFQueue);
+
 
 		// Previous Unpinned, set it to pinned.
         if(pageHandle->getPage()->getPinned()==false) {
