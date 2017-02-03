@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <queue>
 #include "MyDB_Table.h"
 
 using namespace std;
@@ -34,6 +35,8 @@ private:
 	int countHandle;		// count number of page handles pointint to this page
 	
 	int pageLRU;		// LRU number of this page
+
+	queue<off_t> * emptySlotTmpFQueuePtr;
 	
 public:
 	
@@ -48,6 +51,8 @@ public:
 	int getLRU();
 	void setLRU(int lru);
 	
+	long getPageIndex();
+
     int getCountHandle();
 	void increaseCountHandle();
 	void decreaseCountHandle();
@@ -68,7 +73,8 @@ public:
 
 
 	//Constructor for a page
-	MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i, bool anonymous);
+	MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, 
+					long i, bool anonymous, queue<off_t> *emptySlotTmpFQueue);
 	
 	//Deconstructor for a page
 	~MyDB_PageBase ();

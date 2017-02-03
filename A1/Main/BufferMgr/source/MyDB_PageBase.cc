@@ -8,7 +8,8 @@
 #include <unistd.h>
 #include <iostream>
 
-MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, long i, bool anonymous) {
+MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSize, void * pageAddr, 
+								long i, bool anonymous, queue<off_t> *emptySlotTmpFQueue) {
 	this->pageId = id;
 	this->pageSize = pageSize;
 	this->pageAddr = pageAddr;
@@ -20,6 +21,7 @@ MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSi
 	this->pageLRU = 0;
 	this->loadData();
     this->anonymous = anonymous;
+    this->emptySlotTmpFQueuePtr = emptySlotTmpFQueue;
 }
 
 bool MyDB_PageBase :: getAnonymous(){
@@ -40,6 +42,10 @@ size_t MyDB_PageBase :: getPageSize(){
 
 void * MyDB_PageBase :: getPageAddr(){
 	return this->pageAddr;
+}
+
+long MyDB_PageBase :: getPageIndex(){
+	return this->pageIndex;
 }
 
 bool MyDB_PageBase :: getPinned(){
@@ -78,7 +84,13 @@ void MyDB_PageBase :: writeData(){
 	if (fd == -1){
 		cout << "Error happens in opening file" << endl;
 	}else{
-		off_t offset = this->pageIndex * this->pageSize;
+		off_t offset;
+		if (this->anonymous == true && !emptySlotTmpFQueuePtr->empty()){
+				offset = emptySlotTmpFQueuePtr->front();
+				emptySlotTmpFQueuePtr->pop();
+		}else{
+			offset = this->pageIndex * this->pageSize;
+		}
 		off_t offsetLoc = lseek(fd, offset, SEEK_SET);		// reposition the file descripter to the specified page
 		if (offsetLoc == -1){
 			cout << "Error happens in lseeking file" << endl;

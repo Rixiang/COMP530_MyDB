@@ -85,6 +85,8 @@ private:
 
     MyDB_TablePtr anonymousTable;
     int anonymousNextAvail;
+
+    queue<off_t> emptySlotTmpFQueue;
 };
 
 #endif

@@ -14,7 +14,8 @@ void MyDB_PageHandleBase :: wroteBytes () {
 	this->page->wroteBytes();
 }
 
-MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, void * pageAddr, long i,bool anonymous, MyDB_LRU *lru, queue<void *> *poolptr){
+MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tablePtr, string id, size_t pageSize, 
+		void * pageAddr, long i,bool anonymous, MyDB_LRU *lru, queue<void *> *poolptr, queue<off_t> *emptySlotTmpFQueue){
 	if (page != nullptr){
 		//page->countHandle ++;
 		//page->increaseCountHandle();
@@ -23,7 +24,7 @@ MyDB_PageHandleBase :: MyDB_PageHandleBase (MyDB_PagePtr page, MyDB_TablePtr tab
 	}else{
 
 		//MyDB_PageBase pageBase = new MyDB_PageBase(id, tablePtr, pageSize, pageAddr, i);
-		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i, anonymous);
+		page = make_shared<MyDB_PageBase>(id, tablePtr, pageSize, pageAddr, i, anonymous, emptySlotTmpFQueue);
 		this->page = page;
 	}
 	page->increaseCountHandle();
