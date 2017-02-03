@@ -48,10 +48,6 @@ int main () {
 		// allocate a pinned page
 		cout << "allocating pinned page\n";
 		MyDB_PageHandle pinnedPage = myMgr.getPinnedPage (table1, 0);
-		cout << "allocating pinned page handle:" << pinnedPage << endl;
-		cout << "allocating pinned page handle count:" << pinnedPage.use_count() << endl;
-		cout << "\n" << endl;
-        
 		char *bytes = (char *) pinnedPage->getBytes ();
 		writeNums (bytes, 64, 0);
 		pinnedPage->wroteBytes ();
@@ -62,9 +58,6 @@ int main () {
 		for (int i = 1; i < 10; i++) {
 			cout << "allocating pinned page\n";
 			MyDB_PageHandle temp = myMgr.getPinnedPage (table1, i);
-		cout << "allocating pinned page handle:" << pinnedPage << endl;
-		cout << "allocating pinned page handle count:" << pinnedPage.use_count() << endl;
-		cout << "\n" << endl;
 			char *bytes = (char *) temp->getBytes ();
 			writeNums (bytes, 64, i);
 			temp->wroteBytes ();
@@ -122,7 +115,7 @@ int main () {
 			writeNums (bytes, 64, i);
 			twoHandle->wroteBytes ();
 		}
-		cout << "end first table" << endl;
+
 		// make a second table
 		MyDB_TablePtr table2 = make_shared <MyDB_Table> ("tempTable2", "barfoo");
 		for (int i = 0; i < 100; i++) {
