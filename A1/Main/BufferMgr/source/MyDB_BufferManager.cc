@@ -161,6 +161,10 @@ void MyDB_BufferManager ::  evict(void * address){
 
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
+    cout << "\n";
+    cout << "MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i)\n";
+
+    cout << "buffer manageer lruptr:  " << lru <<endl;
     MyDB_PageHandle pageHandle = nullptr;
 	if (whichTable == nullptr){
 		return pageHandle;
@@ -211,6 +215,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 
     	// create a page handle as well as read file from disk
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
+        pageHandle->getPage()->setPinned(true);
         cout << "getpaget(...): after create pagehanlde use count: " << pageHandle.use_count() << endl;
 
     	// add the page handle into the page table in the buffer
@@ -220,8 +225,17 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
         // No LRU update.
 	}
 	else{
+        cout << "the page is already in the table."<<endl;
 		// create a page handle pointing to the existing pageBase Object
     	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
+        cout << "is "<< pageId <<" pinned? "<< pageHandle->getPage()->getPinned() <<endl;
+        if(pageHandle->getPage()->getPinned()==false) {
+            cout << "before pin it:"<< pageHandle->getPage()->getPinned() <<endl;
+            pageHandle->getPage()->setPinned(true);
+            cout << "waht is get from lru?"<< pageHandle->getPage()->getLRU() <<endl;
+            cout << "after pin it:"<< pageHandle->getPage()->getPinned() <<endl;
+            lru -> removeFromLru(pageHandle->getPage()->getLRU());
+        }
 
         // No LRU update.
     }

@@ -17,7 +17,7 @@ MyDB_PageBase :: MyDB_PageBase (string id, MyDB_TablePtr tablePtr, size_t pageSi
 	this->pinned = false;
 	this->countHandle = 1;
 	this->tablePtr = tablePtr;
-	this->pageLRU = 1;
+	this->pageLRU = 0;
 	this->loadData();
     this->anonymous = anonymous;
 }
@@ -46,8 +46,10 @@ bool MyDB_PageBase :: getPinned(){
 	return this->pinned;
 }
 
-void MyDB_PageBase :: setPinned(bool pinned){
-	this->pinned = pinned;
+void MyDB_PageBase :: setPinned(bool paraPin){
+    cout<< "PageBase: set pinned to " << paraPin <<endl;
+	this->pinned = paraPin;
+    cout<< "PageBase: after set pinned to " << pinned <<endl;
 }
 
 int MyDB_PageBase :: getLRU(){
