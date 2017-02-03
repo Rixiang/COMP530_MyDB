@@ -35,11 +35,15 @@ MyDB_BufferManager :: MyDB_BufferManager (size_t pSize, size_t numP, string temp
 }
 
 MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i) {
+
+    cout << "\n";
+    cout << "MyDB-getPage (MyDB_TablePtr whichTable, long i)\n" << i << endl;
+    cout << "buffer manageer lruptr:  " << lru <<endl;
+
 	MyDB_PageHandle pageHandle = nullptr;
 	if (whichTable == nullptr){
 		return pageHandle;
 	}
-    cout << "a:::::" << pageHandle.use_count() <<endl;
 
 	// check whether the requested page is in the buffer
 	// if is already in the page
@@ -51,47 +55,50 @@ MyDB_PageHandle MyDB_BufferManager :: getPage (MyDB_TablePtr whichTable, long i)
 
         void * address;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-        	string evictedPageId = lru -> evictFromLruHead();
-        	auto search = pageTable.find(evictedPageId);
-        	if(search != pageTable.end()) {
-		        address = search->second.getBytes();
-		        cout << "page to be evicted is with address: " << address << endl;
-		        // evict this page from buffer
-		        //search->second.destroyPageHandle();
-		        if (search->second.getPage() != nullptr){
-		        	//search->second.getPage()->destroyPage();
-		            pageTable.erase(evictedPageId);
-		        }
-		    }else {
-		        cout << "Page to be evicted not found\n";
-		    }
+            address = evict(false);
         }else{
+            cout << "getpaget(...): q.size > 0 no evict: " << endl;
+            cout << "getpaget(...): q size before pop: " << emptySlotQueue.size() << endl;
         	// get address for one empty slot to put the data
+            cout << "getpaget(...): emptyslot " << emptySlotQueue.front() << endl;
 			address = this->emptySlotQueue.front();
 			this->emptySlotQueue.pop();
+            cout << "getpaget(...): q size after pop: " << emptySlotQueue.size() << endl;
         }
+
+        cout << "getpaget(...): before create pagehanlde use count: " << pageHandle.use_count() << endl;
     	// create a page handle as well as read file from disk
     	pageHandle = make_shared<MyDB_PageHandleBase>(nullptr, whichTable, pageId, this->pageSize, address, i, false, lru, &emptySlotQueue);
 
-        cout << "b:::::" << pageHandle.use_count() <<endl;
+        cout << "getpaget(...): after create pagehanlde use count: " << pageHandle.use_count() << endl;
     	// add the page handle into the page table in the buffer
     	pageTable.insert({pageId, *pageHandle});
-        cout << "c:::::" << pageHandle.use_count() <<endl;
+        cout << "getpaget(...): insert pagehanldebase use count: " << pageHandle.use_count() << endl;
     	
     	// add the page id into the LRU table
 		lru -> addToLruTail(pageId);
 
 	}
 	else{
+        cout << "the page is already in the table."<<endl;
 		// create a page handle pointing to the existing pageBase Object
-    	//pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, lru);
     	pageHandle = make_shared<MyDB_PageHandleBase>(got->second.getPage(), whichTable, pageId, this->pageSize, nullptr, i, false, lru, &emptySlotQueue);
 
 		// update LRU
-		lru -> moveToLruTail(pageHandle->getLRU());
+        if(pageHandle->getPage()->getPinned()==true) {
+            //From Pinned to Unpinned.
+            cout << "before unpin it:"<< pageHandle->getPage()->getPinned() <<endl;
+            pageHandle->unpinPage();
+            cout << "waht is get from lru?"<< pageHandle->getPage()->getLRU() <<endl;
+            cout << "after unpin it:"<< pageHandle->getPage()->getPinned() <<endl;
+        } else {
+            //Stay Unpinned.
+		    lru -> moveToLruTail(pageHandle->getLRU());
+        }
     }
 	
-        cout << "d:::::" << pageHandle.use_count() <<endl;
+    cout << "getpaget(...): pageHandle: " << pageHandle << endl;
+    cout << "getpaget(...): pageHandle count: " << pageHandle.use_count() << endl;
 	return pageHandle;		
 }
 
@@ -155,16 +162,39 @@ MyDB_PageHandle MyDB_BufferManager :: getPage () {
 	return pageHandle;
 }
 
-void MyDB_BufferManager ::  evict(void * address){
-
+void * MyDB_BufferManager ::  evict(bool pinned){
+    void * address = nullptr;
+    cout << "getpaget(...): q.size = 0 evict: " << endl;
+    string evictedPageId = lru -> evictFromLruHead();
+    cout << "getpaget(...): q.size = 0 evict pageID: " << evictedPageId <<endl;
+    auto search = pageTable.find(evictedPageId);
+    if(search != pageTable.end()) {
+        cout << "getpaget(...): found in buffer table evict pageID: " << evictedPageId <<endl;
+        address = search->second.getBytes();
+        cout << "getpaget(...): evict pageID, addree: " << evictedPageId << " "<< address <<endl;
+        // evict this page from buffer
+        //search->second.destroyPageHandle();
+        if (search->second.getPage() != nullptr){
+            cout << "getpaget(...): evict pageID, getPage: " << evictedPageId << " "<< search->second.getPage() <<endl;
+            if(pinned == false) {
+                search->second.getPage()->destroyPage();
+            }
+            cout << "getpaget(...): q size before erase: " << emptySlotQueue.size() << endl;
+            pageTable.erase(evictedPageId);
+            cout << "getpaget(...): q size after erase: " << emptySlotQueue.size() << endl;
+        }
+    }else {
+        cout << "Page to be evicted not found\n";
+    }
+    return address;
 }
 
 
 MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i) {
     cout << "\n";
-    cout << "MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i)\n";
-
+    cout << "MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, long i)\n" << i <<endl;
     cout << "buffer manageer lruptr:  " << lru <<endl;
+
     MyDB_PageHandle pageHandle = nullptr;
 	if (whichTable == nullptr){
 		return pageHandle;
@@ -178,32 +208,13 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
 	if (got == pageTable.end()){
         cout << pageId << " not found in the pageHandle table\n";
 
-        void * address;
+        void * address ;
         cout << "getpaget(...): q size: " << emptySlotQueue.size() << endl;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
-            cout << "getpaget(...): q.size = 0 evict: " << endl;
-            string evictedPageId = lru -> evictFromLruHead();
-            cout << "getpaget(...): q.size = 0 evict pageID: " << evictedPageId <<endl;
-            auto search = pageTable.find(evictedPageId);
-            if(search != pageTable.end()) {
-                cout << "getpaget(...): found in buffer table evict pageID: " << evictedPageId <<endl;
-                address = search->second.getBytes();
-                cout << "getpaget(...): evict pageID, addree: " << evictedPageId << " "<< address <<endl;
-                // evict this page from buffer
-                //search->second.destroyPageHandle();
-                if (search->second.getPage() != nullptr){
-                    cout << "getpaget(...): evict pageID, getPage: " << evictedPageId << " "<< search->second.getPage() <<endl;
-                    //search->second.getPage()->destroyPage();
-                    cout << "getpaget(...): q size before erase: " << emptySlotQueue.size() << endl;
-                    pageTable.erase(evictedPageId);
-                    cout << "getpaget(...): q size after erase: " << emptySlotQueue.size() << endl;
-                }
-            }else {
-                cout << "Page to be evicted not found\n";
-            }
+            address = evict(true);
         }else{
             cout << "getpaget(...): q.size > 0 no evict: " << endl;
-               cout << "getpaget(...): q size before pop: " << emptySlotQueue.size() << endl;
+            cout << "getpaget(...): q size before pop: " << emptySlotQueue.size() << endl;
         	// get address for one empty slot to put the data
             cout << "getpaget(...): emptyslot " << emptySlotQueue.front() << endl;
 			address = this->emptySlotQueue.front();
