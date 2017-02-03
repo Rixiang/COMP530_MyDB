@@ -125,6 +125,7 @@ void MyDB_PageBase :: loadData(){
 
 void MyDB_PageBase :: destroyPage(){
 	if (this->dirty == true){
+		cout << "[Write Back]: Page id: " <<  this-> pageId <<  endl; 
 		writeData();		// write page back to disk if page has been modified
 	}
 	//delete this;

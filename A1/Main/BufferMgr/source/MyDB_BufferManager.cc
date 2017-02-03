@@ -203,6 +203,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage (MyDB_TablePtr whichTable, l
         void * address ;
         cout << "getpaget(...): q size: " << emptySlotQueue.size() << endl;
         if (emptySlotQueue.empty()){	// if the buffer is full, first evict one page
+
             address = evict(true);
         }else{
             cout << "getpaget(...): q.size > 0 no evict: " << endl;
@@ -272,6 +273,7 @@ MyDB_PageHandle MyDB_BufferManager :: getPinnedPage () {
 
         	auto search = pageTable.find(evictedPageId);
         	if(search != pageTable.end()) {
+		        cout << "page to be evicted is " << evictedPageId << endl;
 
 		        address = search->second.getBytes();
 		        // evict this page from buffer
